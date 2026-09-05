@@ -1,10 +1,43 @@
 /**
- * Reconcilr Full Application & Interactive Workspace Controller
+ * Reconcilr Product Workspace Controller
+ * Controls file ingestion, tax jurisdiction calculations, editable ledger,
+ * plan gating (Weekly vs Monthly), free trial usage, and manual crypto pass checkout.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // Application State
+    // 1. Session & Auth Check Guard
+    const storedSession = localStorage.getItem('trade_ledger_session');
+    if (!storedSession && window.TradeLedgerAuth && !window.TradeLedgerAuth.client) {
+        // Redirect unauthenticated visitors to login
+        window.location.href = 'login.html?mode=signin';
+        return;
+    }
+
+    let userEmail = 'trader@example.com';
+    try {
+        if (storedSession) {
+            const parsed = JSON.parse(storedSession);
+            userEmail = parsed.user?.email || userEmail;
+        }
+    } catch (e) {}
+
+    const emailDisplay = document.getElementById('user-email-display');
+    if (emailDisplay) emailDisplay.textContent = userEmail;
+
+    // Logout button handler
+    const btnLogout = document.getElementById('btn-logout');
+    if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            if (window.TradeLedgerAuth) window.TradeLedgerAuth.logout();
+            else {
+                localStorage.removeItem('trade_ledger_session');
+                window.location.href = 'index.html';
+            }
+        });
+    }
+
+    // Application Workspace State
     const state = {
         ingestedItems: [],
         selectedCountries: [],
@@ -28,44 +61,59 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnExportExcel = document.getElementById('btn-export-excel');
     const btnExportPDF = document.getElementById('btn-export-pdf');
 
+    const passStatusPill = document.getElementById('pass-status-pill');
+    const passStatusText = document.getElementById('pass-status-text');
+    const workspaceNoticeBar = document.getElementById('workspace-notice-bar');
+    const noticeText = document.getElementById('notice-text');
+    const noticeActionBtn = document.getElementById('notice-action-btn');
+    const btnRenewPass = document.getElementById('btn-renew-pass');
+
     // ---------------------------------------------------------
-    // 1. Hero Resolution Animation Sequence
+    // 2. Plan & Free Trial Status Management
     // ---------------------------------------------------------
 
-    const scannerBeam = document.getElementById('scanner-beam');
-    const scatteredContainer = document.getElementById('scattered-container');
-    const resolvedContainer = document.getElementById('resolved-container');
-    const rubberStamp = document.getElementById('rubber-stamp');
-    const btnReplay = document.getElementById('btn-replay-animation');
+    function updatePassStatusUI() {
+        if (!window.TradeLedgerAuth) return;
+        const userState = window.TradeLedgerAuth.getUserState();
+        const activePass = window.TradeLedgerAuth.getActivePass();
 
-    function triggerResolutionAnimation() {
-        if (!scannerBeam || !scatteredContainer || !resolvedContainer || !rubberStamp) return;
-        scannerBeam.classList.remove('active');
-        scatteredContainer.classList.remove('resolving');
-        scatteredContainer.classList.remove('hidden');
-        resolvedContainer.classList.add('hidden');
-        rubberStamp.classList.remove('stamped');
+        if (activePass) {
+            const daysLeft = Math.ceil((activePass.expiryTimestamp - Date.now()) / (1000 * 60 * 60 * 24));
+            if (passStatusText) passStatusText.textContent = `${activePass.planName} Active (${daysLeft} days remaining)`;
+            if (passStatusPill) {
+                passStatusPill.style.borderColor = 'var(--accent-green)';
+                passStatusPill.querySelector('.pill-dot').style.background = 'var(--accent-green)';
+            }
+            if (workspaceNoticeBar) workspaceNoticeBar.classList.add('hidden');
+        } else if (userState.freeReportsUsed < window.TradeLedgerConfig.freeTrial.maxFreeReports) {
+            const freeLeft = window.TradeLedgerConfig.freeTrial.maxFreeReports - userState.freeReportsUsed;
+            if (passStatusText) passStatusText.textContent = `Free Trial (${freeLeft} Report Generation Remaining)`;
+            if (passStatusPill) {
+                passStatusPill.style.borderColor = 'var(--accent-gold)';
+                passStatusPill.querySelector('.pill-dot').style.background = 'var(--accent-gold)';
+            }
+            if (workspaceNoticeBar) workspaceNoticeBar.classList.add('hidden');
+        } else {
+            if (passStatusText) passStatusText.textContent = 'Access Expired — Renew Pass Required';
+            if (passStatusPill) {
+                passStatusPill.style.borderColor = 'var(--stamp-red)';
+                passStatusPill.querySelector('.pill-dot').style.background = 'var(--stamp-red)';
+            }
+            if (workspaceNoticeBar && noticeText) {
+                noticeText.textContent = 'Your 1 free trial report has been generated. Upgrade to a Weekly ($4.99) or Monthly ($9.99) pass to export further reports.';
+                workspaceNoticeBar.classList.remove('hidden');
+            }
+        }
 
-        setTimeout(() => {
-            scannerBeam.classList.add('active');
-            scatteredContainer.classList.add('resolving');
-        }, 100);
-
-        setTimeout(() => {
-            scatteredContainer.classList.add('hidden');
-            resolvedContainer.classList.remove('hidden');
-        }, 1400);
-
-        setTimeout(() => {
-            rubberStamp.classList.add('stamped');
-        }, 1800);
+        renderExportState();
     }
 
-    triggerResolutionAnimation();
-    if (btnReplay) btnReplay.addEventListener('click', triggerResolutionAnimation);
+    updatePassStatusUI();
+    if (btnRenewPass) btnRenewPass.addEventListener('click', openCryptoModal);
+    if (noticeActionBtn) noticeActionBtn.addEventListener('click', openCryptoModal);
 
     // ---------------------------------------------------------
-    // 2. Interactive Workspace & File Ingestion
+    // 3. File Ingestion & Drag Drop
     // ---------------------------------------------------------
 
     if (wsDropzone && wsFileInput) {
@@ -138,6 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function loadAllSyntheticSamples() {
+        if (!window.SampleDataProvider) return;
         const samples = window.SampleDataProvider.SAMPLES;
         Object.keys(samples).forEach(k => {
             processFile(samples[k].name, samples[k].content);
@@ -145,19 +194,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ---------------------------------------------------------
-    // 3. Multi-Country Jurisdiction Selector & Calculation
+    // 4. Jurisdiction Selector & Multi-Country Gating
     // ---------------------------------------------------------
 
     const countryCheckboxes = document.querySelectorAll('input[name="ws-country"]');
     countryCheckboxes.forEach(cb => {
         cb.addEventListener('change', () => {
-            const selected = Array.from(document.querySelectorAll('input[name="ws-country"]:checked')).map(c => c.value);
-            state.selectedCountries = selected;
+            const activePass = window.TradeLedgerAuth.getActivePass();
+            const allowsMulti = activePass ? window.TradeLedgerConfig.plans[activePass.planId]?.multiCountryAllowed : false;
+
+            const selected = Array.from(document.querySelectorAll('input[name="ws-country"]:checked'));
+            
+            // Single country enforcement for Free Trial & Weekly Pass
+            if (!allowsMulti && selected.length > 1) {
+                alert('Single-country tax tagging is active on Free Trial & Weekly Pass ($4.99). Upgrade to Monthly Pass ($9.99) for multi-country tagging.');
+                cb.checked = false;
+                return;
+            }
+
+            state.selectedCountries = Array.from(document.querySelectorAll('input[name="ws-country"]:checked')).map(c => c.value);
             recalculateAndRenderLedger();
         });
     });
 
     function recalculateAndRenderLedger() {
+        if (!window.ReconciliationEngine) return;
         state.consolidatedResult = window.ReconciliationEngine.consolidateLedger(state.ingestedItems, state.selectedCountries);
         state.consolidatedResult.attestationConfirmed = state.attestationConfirmed;
         state.consolidatedResult.attestationText = state.attestationConfirmed
@@ -184,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderCountryEstimates() {
-        if (!wsCountryEstimates) return;
+        if (!wsCountryEstimates || !state.consolidatedResult) return;
         const ests = state.consolidatedResult.countryLiabilityEstimates;
 
         if (state.ingestedItems.length === 0) {
@@ -193,14 +254,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (ests.length === 0) {
-            wsCountryEstimates.innerHTML = '<div class="ingestion-errors" style="margin-top:0;">Select every country where you file to apply jurisdiction reference tags. No tax estimate is shown until then.</div>';
+            wsCountryEstimates.innerHTML = '<div class="ingestion-errors" style="margin-top:0;">Select a jurisdiction country above to view tax estimates.</div>';
             return;
         }
 
         let cardsHtml = '';
         ests.forEach(cle => {
             cardsHtml += `
-                <div style="flex:1; min-width:220px; background:var(--paper-bg); border:1px solid var(--paper-border); padding:16px;">
+                <div style="flex:1; min-width:220px; background:var(--paper-bg); border:1px solid var(--paper-border); padding:16px; border-radius:6px;">
                     <div style="font-family:var(--font-mono); font-size:0.75rem; font-weight:700; color:var(--ink-muted);">${cle.countryName} JURISDICTION</div>
                     <div style="font-family:var(--font-serif); font-size:1.25rem; font-weight:700; color:var(--ink-black);">${cle.estimatedRange}</div>
                     <div style="font-size:0.75rem; color:var(--ink-slate); margin-top:4px;">${cle.disclaimer}</div>
@@ -208,20 +269,16 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         });
 
-        wsCountryEstimates.innerHTML = `
-            <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                ${cardsHtml}
-            </div>
-        `;
+        wsCountryEstimates.innerHTML = `<div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:12px;">${cardsHtml}</div>`;
     }
 
     function renderLedgerTable() {
-        if (!wsTbodyLedger) return;
+        if (!wsTbodyLedger || !state.consolidatedResult) return;
         const items = state.consolidatedResult.categorizedItems;
-        wsLineCount.innerText = items.length;
+        if (wsLineCount) wsLineCount.innerText = items.length;
 
         if (items.length === 0) {
-            wsTbodyLedger.innerHTML = `<tr><td colspan="8" class="text-center" style="padding:32px; color:var(--ink-muted);">No statements ingested yet. Click "Load Built-in Demo Samples" above.</td></tr>`;
+            wsTbodyLedger.innerHTML = `<tr><td colspan="8" class="text-center" style="padding:32px; color:var(--ink-muted);">No statement lines ingested yet. Click "Load Built-in Demo Samples" above.</td></tr>`;
             return;
         }
 
@@ -230,7 +287,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const tr = document.createElement('tr');
             const pnlClass = (item.amount || 0) >= 0 ? 'ledger-amount text-pos' : 'ledger-amount text-neg';
             const tagBadge = (item.instrumentType === 'prop-payout') ? 'tag-prop' : ((item.instrumentType === 'futures') ? 'tag-futures' : 'tag-broker');
-
             const tagsHtml = (item.jurisdictionTags || []).map(t => `<span class="source-tag" style="margin-bottom:2px; font-size:10px;">${t.countryKey}: ${t.taxHead}</span>`).join('<br>');
 
             tr.innerHTML = `
@@ -252,11 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function escapeAttr(value) {
-        return String(value)
-            .replace(/&/g, '&amp;')
-            .replace(/"/g, '&quot;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
+        return String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
     if (wsTbodyLedger) {
@@ -305,17 +357,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ---------------------------------------------------------
+    // 5. Export Gating & Execution
+    // ---------------------------------------------------------
+
     function renderExportState() {
         const hasRows = state.consolidatedResult && state.consolidatedResult.categorizedItems.length > 0;
-        const canExport = Boolean(hasRows && state.selectedCountries.length > 0 && state.attestationConfirmed);
-        [btnExportCSV, btnExportExcel, btnExportPDF].forEach(button => {
-            if (!button) return;
-            button.disabled = !canExport;
-            button.title = canExport ? '' : 'Select filing countries, review the editable ledger, and check the attestation before export.';
-        });
+        const canExportBasic = Boolean(hasRows && state.selectedCountries.length > 0 && state.attestationConfirmed);
+
+        const activePass = window.TradeLedgerAuth.getActivePass();
+        const plan = activePass ? window.TradeLedgerConfig.plans[activePass.planId] : null;
+
+        if (btnExportCSV) btnExportCSV.disabled = !canExportBasic;
+        if (btnExportPDF) btnExportPDF.disabled = !canExportBasic;
+
+        if (btnExportExcel) {
+            const excelAllowed = plan ? plan.exportsAllowed.includes('Excel') : false;
+            btnExportExcel.disabled = !canExportBasic || !excelAllowed;
+            btnExportExcel.title = excelAllowed ? '' : 'Excel export requires a Monthly Pass ($9.99).';
+        }
     }
 
-    function guardedExport(exportFn) {
+    function guardedExport(exportFn, formatName) {
+        const check = window.TradeLedgerAuth.canGenerateReport(state.selectedCountries.length, formatName);
+
+        if (!check.allowed) {
+            alert(check.reason);
+            openCryptoModal();
+            return;
+        }
+
         if (!state.consolidatedResult || state.consolidatedResult.categorizedItems.length === 0) {
             alert('No items in ledger to export.');
             return;
@@ -325,161 +396,91 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         if (state.selectedCountries.length === 0) {
-            alert('Select every country where you file before exporting.');
+            alert('Select a country tax jurisdiction before exporting.');
             return;
         }
+
         exportFn(state.consolidatedResult);
+        window.TradeLedgerAuth.recordReportExport();
+        updatePassStatusUI();
     }
 
-    // ---------------------------------------------------------
-    // 4. Exporters
-    // ---------------------------------------------------------
-
     if (btnExportCSV) {
-        btnExportCSV.addEventListener('click', () => {
-            guardedExport(window.ReconcilrExporter.exportCSV);
-        });
+        btnExportCSV.addEventListener('click', () => guardedExport(window.ReconcilrExporter.exportCSV, 'CSV'));
     }
 
     if (btnExportExcel) {
-        btnExportExcel.addEventListener('click', () => {
-            guardedExport(window.ReconcilrExporter.exportExcel);
-        });
+        btnExportExcel.addEventListener('click', () => guardedExport(window.ReconcilrExporter.exportExcel, 'Excel'));
     }
 
     if (btnExportPDF) {
-        btnExportPDF.addEventListener('click', () => {
-            guardedExport(window.ReconcilrExporter.printAccountantPDF);
-        });
+        btnExportPDF.addEventListener('click', () => guardedExport(window.ReconcilrExporter.printAccountantPDF, 'PDF'));
     }
 
     // ---------------------------------------------------------
-    // 5. Country Preview Tabs & Forms
+    // 6. Manual Crypto Pass Payment Modal
     // ---------------------------------------------------------
 
-    const COUNTRY_DATA = {
-        US: { title: 'United States — CPA Schedule C & Section 1256 Formats', flag: '🇺🇸', rules: [{ category: 'Futures Contracts', treatment: '60% LT / 40% ST Capital Gain', form: 'Form 6781' }, { category: 'Prop Payouts', treatment: 'Self-Employment Income', form: 'Schedule C' }] },
-        IN: { title: 'India — CA ITR-3 & Section 44ADA Schedules', flag: '🇮🇳', rules: [{ category: 'Speculative Forex', treatment: 'Section 28(i) Speculative Business', form: 'ITR-3 Schedule BP' }, { category: 'Prop Payouts', treatment: 'Service / Contractor Pay (Sec 44ADA)', form: 'ITR-3 / ITR-4' }] },
-        UK: { title: 'United Kingdom — HMRC Self Assessment', flag: '🇬🇧', rules: [{ category: 'CFD Trading', treatment: 'Trading Income / Capital Gains', form: 'SA103F' }] },
-        AU: { title: 'Australia — ATO Tax Return & CGT', flag: '🇦🇺', rules: [{ category: 'Futures & Forex', treatment: 'ATO Ordinary Income', form: 'Item 15' }] },
-        EU: { title: 'European Union — Standardized Output', flag: '🇪🇺', rules: [{ category: 'Derivatives P&L', treatment: 'Capital Gains Income', form: 'National Return' }] }
-    };
+    const cryptoModal = document.getElementById('crypto-modal');
+    const btnCloseCryptoModal = document.getElementById('btn-close-crypto-modal');
+    const cryptoPlanRadios = document.querySelectorAll('input[name="crypto-plan"]');
+    const cryptoAssetSelect = document.getElementById('crypto-asset-select');
+    const cryptoDueAmount = document.getElementById('crypto-due-amount');
+    const cryptoWalletAddress = document.getElementById('crypto-wallet-address');
+    const btnCopyAddress = document.getElementById('btn-copy-address');
+    const btnConfirmCryptoPay = document.getElementById('btn-confirm-crypto-pay');
 
-    const countryBtns = document.querySelectorAll('.country-btn');
-    const countryDetailsCard = document.getElementById('country-details-card');
+    function openCryptoModal() {
+        if (cryptoModal) cryptoModal.classList.remove('hidden');
+        updateCryptoModalState();
+    }
 
-    function renderCountryDetails(countryKey) {
-        if (!countryDetailsCard) return;
-        const data = COUNTRY_DATA[countryKey] || COUNTRY_DATA['US'];
-        let rowsHtml = '';
-        data.rules.forEach(rule => {
-            rowsHtml += `<tr><td><strong>${rule.category}</strong></td><td class="text-pos">${rule.treatment}</td><td><span class="source-tag tag-broker">${rule.form}</span></td></tr>`;
+    function closeCryptoModal() {
+        if (cryptoModal) cryptoModal.classList.add('hidden');
+    }
+
+    if (btnCloseCryptoModal) btnCloseCryptoModal.addEventListener('click', closeCryptoModal);
+
+    function updateCryptoModalState() {
+        const selectedPlanKey = document.querySelector('input[name="crypto-plan"]:checked')?.value || 'weekly';
+        const plan = window.TradeLedgerConfig.plans[selectedPlanKey];
+        if (cryptoDueAmount && plan) {
+            cryptoDueAmount.textContent = `$${plan.priceUsd} USD`;
+        }
+
+        const selectedAssetSymbol = cryptoAssetSelect?.value || 'USDT';
+        const assetConfig = window.TradeLedgerConfig.cryptoPayment.acceptedCryptos.find(a => a.symbol === selectedAssetSymbol);
+        if (cryptoWalletAddress && assetConfig) {
+            cryptoWalletAddress.textContent = assetConfig.address;
+        }
+    }
+
+    cryptoPlanRadios.forEach(radio => radio.addEventListener('change', updateCryptoModalState));
+    if (cryptoAssetSelect) cryptoAssetSelect.addEventListener('change', updateCryptoModalState);
+
+    if (btnCopyAddress && cryptoWalletAddress) {
+        btnCopyAddress.addEventListener('click', () => {
+            navigator.clipboard.writeText(cryptoWalletAddress.textContent);
+            btnCopyAddress.textContent = 'Copied!';
+            setTimeout(() => { btnCopyAddress.textContent = 'Copy'; }, 1500);
         });
-        countryDetailsCard.innerHTML = `
-            <h3 style="font-family:var(--font-serif); font-size:1.3rem; margin-bottom:12px;">${data.flag} ${data.title}</h3>
-            <div class="ledger-table-wrapper"><table class="hairline-table"><thead><tr><th>CLASS</th><th>TREATMENT</th><th>FORM MAP</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>
-        `;
     }
 
-    countryBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            countryBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            renderCountryDetails(btn.getAttribute('data-country'));
+    if (btnConfirmCryptoPay) {
+        btnConfirmCryptoPay.addEventListener('click', () => {
+            const selectedPlanKey = document.querySelector('input[name="crypto-plan"]:checked')?.value || 'weekly';
+            const activated = window.TradeLedgerAuth.activatePass(selectedPlanKey, `CRYPTO-MANUAL-${Date.now()}`);
+            if (activated) {
+                alert(`Success! Your ${activated.planName} is now active for ${window.TradeLedgerConfig.plans[selectedPlanKey].durationDays} days.`);
+                closeCryptoModal();
+                updatePassStatusUI();
+                recalculateAndRenderLedger();
+            }
         });
-    });
-
-    renderCountryDetails('US');
-
-    // Waitlist Form & Modal
-    const heroQuickForm = document.getElementById('hero-quick-form');
-    const fullWaitlistForm = document.getElementById('full-waitlist-form');
-    const successModal = document.getElementById('success-modal');
-    const btnCloseModal = document.getElementById('btn-close-modal');
-
-    // Set this to the Formspree endpoint created for Trade Ledger before launch.
-    const LEAD_ENDPOINT = window.TradeLedgerConfig?.formspreeEndpoint || '';
-
-    async function handleFormSubmit(e) {
-        e.preventDefault();
-        const form = e.currentTarget;
-        const status = form.parentElement.querySelector('.form-status') || form.querySelector('.form-status');
-        const submitButton = form.querySelector('button[type="submit"]');
-
-        if (!LEAD_ENDPOINT) {
-            if (status) {
-                status.textContent = 'Lead capture is not configured yet. Add the Formspree form ID before accepting signups.';
-                status.dataset.state = 'error';
-            }
-            return;
-        }
-
-        const formData = new FormData(form);
-        formData.append('source', form.dataset.leadSource || 'website');
-        formData.append('_subject', 'New Trade Ledger waitlist lead');
-        if (submitButton) submitButton.disabled = true;
-        if (status) {
-            status.textContent = 'Saving your spot...';
-            status.dataset.state = 'loading';
-        }
-
-        try {
-            const response = await fetch(LEAD_ENDPOINT, {
-                method: 'POST',
-                body: formData,
-                headers: { Accept: 'application/json' }
-            });
-            if (!response.ok) throw new Error('Lead provider rejected the submission.');
-
-            form.reset();
-            if (status) {
-                status.textContent = '';
-                status.dataset.state = '';
-            }
-            if (successModal) successModal.classList.remove('hidden');
-        } catch (error) {
-            if (status) {
-                status.textContent = 'We could not save your details. Please try again in a moment.';
-                status.dataset.state = 'error';
-            }
-        } finally {
-            if (submitButton) submitButton.disabled = false;
-        }
     }
 
-    if (heroQuickForm) heroQuickForm.addEventListener('submit', handleFormSubmit);
-    if (fullWaitlistForm) fullWaitlistForm.addEventListener('submit', handleFormSubmit);
-    if (btnCloseModal) btnCloseModal.addEventListener('click', () => successModal.classList.add('hidden'));
-
-    // Landing-only depth: input follows the visitor without changing workspace behavior.
-    const landingSections = document.querySelectorAll('.landing-depth-section, .landing-hero');
-    const supportsReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!supportsReducedMotion) {
-        window.addEventListener('scroll', () => {
-            landingSections.forEach(section => {
-                const rect = section.getBoundingClientRect();
-                const offset = Math.max(-1, Math.min(1, rect.top / window.innerHeight - 0.5));
-                section.style.setProperty('--scroll-depth', `${offset * -16}px`);
-            });
-        }, { passive: true });
-
-        const heroStage = document.querySelector('.hero-product-stage');
-        if (heroStage) {
-            heroStage.addEventListener('pointermove', (event) => {
-                const bounds = heroStage.getBoundingClientRect();
-                const x = (event.clientX - bounds.left) / bounds.width - 0.5;
-                const y = (event.clientY - bounds.top) / bounds.height - 0.5;
-                heroStage.style.setProperty('--tilt-x', `${y * -5}deg`);
-                heroStage.style.setProperty('--tilt-y', `${x * 6}deg`);
-            });
-            heroStage.addEventListener('pointerleave', () => {
-                heroStage.style.setProperty('--tilt-x', '0deg');
-                heroStage.style.setProperty('--tilt-y', '0deg');
-            });
-        }
-    }
-
-    // Boot synthetic samples on load
+    // Auto-load built-in sample data into the workspace
     loadAllSyntheticSamples();
 
+    if (window.lucide) lucide.createIcons();
 });

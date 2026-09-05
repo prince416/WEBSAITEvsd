@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade Ledger | Reconciliation Workspace</title>
+    <meta name="description" content="Logged-in product workspace for compiling, editing, and exporting accountant-ready trading ledgers.">
+    <meta name="theme-color" content="#fcfaf7">
+    
+    <!-- Google Fonts: Newsreader (Serif), JetBrains Mono (Monospace), Plus Jakarta Sans (Sans) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="app-workspace-body">
+
+    <!-- Workspace Header Topbar -->
+    <header class="app-topbar">
+        <div class="topbar-inner">
+            <a class="brand-group" href="index.html" aria-label="Trade Ledger home">
+                <div class="brand-seal"><span class="seal-inner">TL</span></div>
+                <div class="brand-titles">
+                    <span class="brand-name">TRADE LEDGER</span>
+                    <span class="brand-sub">PRODUCT WORKSPACE</span>
+                </div>
+            </a>
+
+            <div class="topbar-center">
+                <div class="pass-status-pill" id="pass-status-pill">
+                    <span class="pill-dot"></span>
+                    <span id="pass-status-text">Checking Access...</span>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <span class="user-email-display" id="user-email-display">trader@example.com</span>
+                <button class="btn btn-stamp btn-sm" id="btn-renew-pass" type="button">
+                    <i data-lucide="shield-check"></i>
+                    <span>Get / Renew Pass</span>
+                </button>
+                <button class="btn btn-secondary-paper btn-sm" id="btn-logout" type="button">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Workspace Notice Bar (Free Trial / Lock Warnings) -->
+    <div class="workspace-notice-bar hidden" id="workspace-notice-bar" aria-live="polite">
+        <div class="notice-content">
+            <i data-lucide="alert-triangle" style="color:var(--stamp-red);"></i>
+            <span id="notice-text">Notice message</span>
+        </div>
+        <button class="btn btn-stamp btn-sm" id="notice-action-btn">Upgrade Pass</button>
+    </div>
+
+    <!-- Main Workspace Container (Light Paper Theme) -->
+    <main class="workspace-layout">
+        <div class="workspace-container">
+
+            <!-- Section 1: Data Statement Ingestion -->
+            <section class="paper-card" aria-label="Statement Ingestion">
+                <div class="card-header">
+                    <div>
+                        <h2>1. Ingest Statement Files</h2>
+                        <p class="card-subtitle">Drop CSV exports from MT4/MT5, prop firm payouts, Rise/Deel/Wise, or crypto exchanges.</p>
+                    </div>
+                    <button class="btn btn-secondary-paper btn-sm" id="btn-load-all-samples" type="button">
+                        <i data-lucide="sparkles"></i>
+                        <span>Load Built-in Demo Samples</span>
+                    </button>
+                </div>
+
+                <div class="dropzone" id="ws-dropzone">
+                    <input type="file" id="ws-file-input" multiple accept=".csv,.txt,.html,.htm,.json" style="display:none;">
+                    <i data-lucide="upload-cloud" class="dropzone-icon"></i>
+                    <p class="dropzone-title">Drag & drop statement files here or <span class="text-underline" onclick="document.getElementById('ws-file-input').click()">browse files</span></p>
+                    <p class="dropzone-sub">Supported: MT4/MT5 HTML & CSV, Prop Payout Receipts, Deel/Rise/Wise/Payoneer exports, Binance/Bybit CSVs</p>
+                </div>
+
+                <div class="ingestion-errors hidden" id="ws-ingestion-errors" aria-live="polite"></div>
+            </section>
+
+            <!-- Section 2: Country Tax Jurisdiction Selector -->
+            <section class="paper-card" aria-label="Tax Jurisdiction Selector">
+                <div class="card-header">
+                    <div>
+                        <h2>2. Select Filing Jurisdiction Tags</h2>
+                        <p class="card-subtitle">Apply reference tax heads to your ledger entries. <small id="jurisdiction-plan-note" style="color:var(--ink-slate);">(Single country on Free Trial / Weekly Pass; Multi-country on Monthly Pass)</small></p>
+                    </div>
+                </div>
+
+                <div class="country-checkboxes-grid">
+                    <label class="country-checkbox-label">
+                        <input type="checkbox" name="ws-country" value="US">
+                        <span class="flag">🇺🇸</span>
+                        <span>United States (Schedule C / 1256)</span>
+                    </label>
+                    <label class="country-checkbox-label">
+                        <input type="checkbox" name="ws-country" value="IN">
+                        <span class="flag">🇮🇳</span>
+                        <span>India (ITR-3 / Sec 44ADA)</span>
+                    </label>
+                    <label class="country-checkbox-label">
+                        <input type="checkbox" name="ws-country" value="UK">
+                        <span class="flag">🇬🇧</span>
+                        <span>United Kingdom (SA103F)</span>
+                    </label>
+                    <label class="country-checkbox-label">
+                        <input type="checkbox" name="ws-country" value="AU">
+                        <span class="flag">🇦🇺</span>
+                        <span>Australia (ATO Item 15)</span>
+                    </label>
+                    <label class="country-checkbox-label">
+                        <input type="checkbox" name="ws-country" value="EU">
+                        <span class="flag">🇪🇺</span>
+                        <span>European Union (Derivatives P&L)</span>
+                    </label>
+                </div>
+
+                <div id="ws-country-estimates" class="country-estimates-wrap"></div>
+            </section>
+
+            <!-- Section 3: Consolidated & Editable Ledger Table -->
+            <section class="paper-card" aria-label="Editable Ledger Table">
+                <div class="card-header">
+                    <div>
+                        <h2>3. Consolidated & Editable Ledger</h2>
+                        <p class="card-subtitle">Review confidence scores and edit values directly before export. Total Lines: <b id="ws-line-count">0</b></p>
+                    </div>
+                </div>
+
+                <div class="ledger-table-wrapper">
+                    <table class="hairline-table">
+                        <thead>
+                            <tr>
+                                <th>REF ID</th>
+                                <th>DATE</th>
+                                <th>SOURCE</th>
+                                <th>TYPE</th>
+                                <th>DESCRIPTION</th>
+                                <th>AMOUNT ($)</th>
+                                <th>CONFIDENCE</th>
+                                <th>TAX TAGS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ws-tbody-ledger">
+                            <tr>
+                                <td colspan="8" class="text-center" style="padding:32px; color:var(--ink-muted);">
+                                    No statement lines ingested yet. Click "Load Built-in Demo Samples" above.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Manual Entry Form -->
+                <details class="manual-entry-details">
+                    <summary>+ Add Manual Adjustment / Offline Transaction</summary>
+                    <form id="manual-entry-form" class="manual-form">
+                        <input type="text" id="manual-id" placeholder="Ref ID (Optional)" class="form-input">
+                        <input type="date" id="manual-date" class="form-input" required>
+                        <input type="text" id="manual-source" placeholder="Source (e.g. Wise Transfer)" class="form-input" required>
+                        <select id="manual-type" class="form-input" required>
+                            <option value="forex">Forex</option>
+                            <option value="futures">Futures</option>
+                            <option value="prop-payout">Prop Payout</option>
+                            <option value="crypto">Crypto</option>
+                            <option value="transfer">Transfer Fee</option>
+                        </select>
+                        <input type="text" id="manual-description" placeholder="Description / Symbol" class="form-input" required>
+                        <input type="number" step="0.01" id="manual-amount" placeholder="Amount ($)" class="form-input" required>
+                        <button type="submit" class="btn btn-secondary-paper">Add Line</button>
+                    </form>
+                </details>
+            </section>
+
+            <!-- Section 4: Attestation & Export Controls -->
+            <section class="paper-card" aria-label="Export Reconciliation Pack">
+                <div class="card-header">
+                    <div>
+                        <h2>4. Export Accountant Pack</h2>
+                        <p class="card-subtitle">Confirm accuracy attestation to unlock export buttons.</p>
+                    </div>
+                </div>
+
+                <div class="attestation-wrap">
+                    <label class="attestation-label">
+                        <input type="checkbox" id="ws-attestation">
+                        <span>I confirm that these ingested statement lines are complete and accurate to the best of my knowledge for accountant review.</span>
+                    </label>
+                </div>
+
+                <div class="export-actions-row">
+                    <button class="btn btn-secondary-paper" id="btn-export-csv" disabled>
+                        <i data-lucide="file-text"></i>
+                        <span>Export CSV</span>
+                    </button>
+                    <button class="btn btn-secondary-paper" id="btn-export-excel" disabled>
+                        <i data-lucide="file-spreadsheet"></i>
+                        <span>Export Excel (.xlsx)</span>
+                    </button>
+                    <button class="btn btn-stamp" id="btn-export-pdf" disabled>
+                        <i data-lucide="printer"></i>
+                        <span>Printable PDF Audit Pack</span>
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Crypto Manual Pass Payment Modal -->
+    <div class="modal-overlay hidden" id="crypto-modal" aria-hidden="true">
+        <div class="crypto-modal-card">
+            <div class="modal-head">
+                <h3>Select Access Pass</h3>
+                <button class="btn-close" id="btn-close-crypto-modal" type="button">&times;</button>
+            </div>
+
+            <div class="crypto-plan-selector">
+                <label class="crypto-plan-option active" data-plan="weekly">
+                    <input type="radio" name="crypto-plan" value="weekly" checked>
+                    <div class="plan-info">
+                        <strong>Weekly Pass — $4.99</strong>
+                        <small>7 days access • CSV + PDF exports • Single country tagging</small>
+                    </div>
+                </label>
+                <label class="crypto-plan-option" data-plan="monthly">
+                    <input type="radio" name="crypto-plan" value="monthly" default>
+                    <div class="plan-info">
+                        <strong>Monthly Pass — $9.99</strong>
+                        <small>30 days access • CSV + Excel + PDF exports • Multi-country tagging</small>
+                    </div>
+                </label>
+            </div>
+
+            <div class="crypto-asset-selector">
+                <label for="crypto-asset-select">Pay with Asset:</label>
+                <select id="crypto-asset-select" class="form-input">
+                    <option value="USDT">Tether USDT (TRC20 / ERC20)</option>
+                    <option value="BTC">Bitcoin (BTC)</option>
+                    <option value="ETH">Ethereum (ETH)</option>
+                    <option value="SOL">Solana (SOL)</option>
+                </select>
+            </div>
+
+            <div class="crypto-payment-box">
+                <p class="crypto-pay-amount">Amount Due: <strong id="crypto-due-amount">$4.99 USD</strong></p>
+                <p class="crypto-address-label">Send payment to address below:</p>
+                <div class="crypto-address-row">
+                    <code id="crypto-wallet-address">0x71C7656EC7ab88b098defB751B7401B5f6d8976F</code>
+                    <button class="btn btn-secondary-paper btn-sm" id="btn-copy-address" type="button">Copy</button>
+                </div>
+                <p class="crypto-note">No recurring subscriptions or auto-charges. Once confirmed, your pass is activated instantly for the full period.</p>
+            </div>
+
+            <div class="crypto-modal-actions">
+                <button class="btn btn-stamp btn-block" id="btn-confirm-crypto-pay" type="button">
+                    <i data-lucide="check-circle-2"></i>
+                    <span>Confirm Payment & Activate Pass</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/parsers/unified-parsers.js"></script>
+    <script src="js/samples/sample-data.js"></script>
+    <script src="js/engine/reconciliation.js"></script>
+    <script src="js/export/exporter.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

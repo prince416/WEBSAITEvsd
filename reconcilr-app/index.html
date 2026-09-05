@@ -3,680 +3,319 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade Ledger | Reconciliation Layer for Independent Traders</title>
+    <meta name="description" content="Bring broker exports, prop-firm payouts, and payment records into one editable, accountant-ready trading ledger.">
     <meta name="theme-color" content="#07090e">
-    <title>Trade Ledger | Financial Reconciliation for Independent Traders</title>
-    <meta name="description" content="Bring broker CSV exports, prop-firm payouts, and payment receipts into one clean, accountant-ready trading ledger.">
     
     <!-- Google Fonts: Newsreader (Serif), JetBrains Mono (Monospace), Plus Jakarta Sans (Sans) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Lucide Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-
-    <!-- SheetJS for Client-Side Excel Generation -->
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="site-shell">
 
-    <div class="app-wrapper">
-        
-        <!-- Linear-Style Navigation Header -->
-        <header class="header landing-header" id="top">
-            <div class="header-inner">
-                <a class="brand-group" href="#top" aria-label="Trade Ledger home">
-                    <div class="brand-seal">
-                        <span class="seal-inner">TL</span>
-                    </div>
-                    <div class="brand-titles">
-                        <span class="brand-name">TRADE LEDGER</span>
-                        <span class="brand-sub">FOR INDEPENDENT TRADERS</span>
-                    </div>
-                </a>
-
-                <nav class="landing-nav" aria-label="Primary navigation">
-                    <a href="#product">Product</a>
-                    <a href="#workflow">Workflow</a>
-                    <a href="#sources">Sources</a>
-                    <a href="#pricing">Pricing</a>
-                </nav>
-
-                <div class="header-actions">
-                    <a class="nav-login" id="btn-auth-nav" href="login.html?mode=signin">Log in</a>
-                    <a href="login.html?mode=signup" class="btn btn-stamp landing-primary-cta">
-                        <span>Get started</span>
-                        <i data-lucide="arrow-up-right"></i>
-                    </a>
+    <!-- Public Navigation Header -->
+    <header class="header landing-header" id="top">
+        <div class="header-inner">
+            <a class="brand-group" href="#top" aria-label="Trade Ledger home">
+                <div class="brand-seal">
+                    <span class="seal-inner">TL</span>
                 </div>
-            </div>
-        </header>
+                <div class="brand-titles">
+                    <span class="brand-name">TRADE LEDGER</span>
+                    <span class="brand-sub">FOR INDEPENDENT TRADERS</span>
+                </div>
+            </a>
 
-        <!-- Upfront Legal Disclaimer Banner -->
-        <div class="upfront-disclaimer-banner">
-            <i data-lucide="shield-alert"></i>
-            <div>
-                <strong>DATA COMPILATION & REFERENCE TOOL NOTICE:</strong>
-                Trade Ledger is a financial data normalization layer designed for traders and CPAs/CAs. 
-                Trade Ledger is not a tax filing service, registered tax advisor, or source of prescriptive tax-saving advice. All calculated figures and tax ranges are estimates to verify with a licensed accountant in each selected jurisdiction before filing.
+            <nav class="landing-nav" aria-label="Primary navigation">
+                <a href="#features">Features</a>
+                <a href="#workflow">Workflow</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#waitlist">Waitlist</a>
+            </nav>
+
+            <div class="header-actions">
+                <a class="nav-login" href="login.html?mode=signin">Log in</a>
+                <a href="login.html?mode=signup" class="btn btn-stamp landing-primary-cta">
+                    <span>Get started</span>
+                    <i data-lucide="arrow-up-right"></i>
+                </a>
             </div>
         </div>
+    </header>
 
-        <!-- Linear-Inspired Hero Section -->
-        <section class="hero-section" id="product">
-            <div class="hero-header">
-                <div class="hero-kicker">
-                    <span class="pulse-dot"></span>
-                    <span>RECONCILIATION LAYER FOR GLOBAL TRADERS</span>
+    <main id="main-content">
+        <!-- Hero Section -->
+        <section class="landing-hero" aria-label="Product introduction">
+            <div class="hero-bg-halo" aria-hidden="true"></div>
+            
+            <div class="hero-content">
+                <div class="hero-pill">
+                    <span class="pill-dot"></span>
+                    <span>THE DATA COMPILATION LAYER BETWEEN TRADERS AND ACCOUNTANTS</span>
                 </div>
-                <h1 class="hero-title">From Scattered Statements to One Accountant-Ready Ledger</h1>
-                <p class="hero-description">
-                    Trade Ledger ingests live-account CSV exports from brokers, prop-firm payout certificates, and payment receipts (Rise, Deel, Wise, Payoneer, Binance) — resolving fragmented records into one editable, country-specific P&L schedule for your CPA or CA.
+                <h1 class="hero-title">
+                    Close the gap between <br>
+                    <span class="text-serif text-italic">trading statements</span> & your accountant.
+                </h1>
+                <p class="hero-subtitle">
+                    Turn raw broker CSVs, prop payouts, and crypto payment records into one consolidated, accountant-ready P&L ledger.
                 </p>
-                <div class="hero-cta-group">
-                    <a href="#workspace" class="btn btn-stamp btn-lg">
-                        <i data-lucide="play"></i>
-                        <span>Launch Live Workspace</span>
-                    </a>
-                    <a href="login.html?mode=signup" class="btn btn-secondary-paper btn-lg">
-                        <span>Create Free Account</span>
+                <div class="hero-actions">
+                    <a href="login.html?mode=signup" class="btn btn-stamp btn-lg">
+                        <span>Get started free</span>
                         <i data-lucide="arrow-right"></i>
                     </a>
+                    <a href="#features" class="btn btn-secondary-paper btn-lg">
+                        <span>Explore features</span>
+                    </a>
                 </div>
+                <p class="hero-disclaimer">Includes 1 free trial report generation. No credit card required.</p>
             </div>
 
-            <!-- Hero Product Stage / Interactive Demo Frame -->
-            <div class="hero-product-stage">
-                <div class="stage-header">
-                    <div class="stage-controls">
-                        <span class="dot red"></span>
-                        <span class="dot yellow"></span>
-                        <span class="dot green"></span>
+            <!-- Static Marketing Mockup (Non-Interactive) -->
+            <div class="hero-mockup-wrapper">
+                <div class="mockup-frame">
+                    <div class="mockup-header">
+                        <div class="mockup-dots"><span></span><span></span><span></span></div>
+                        <div class="mockup-title">Trade Ledger — Consolidated Record #TL-8092</div>
+                        <div class="mockup-badge"><i data-lucide="check-circle-2"></i> Reconciled</div>
                     </div>
-                    <div class="stage-title">
-                        <i data-lucide="cpu"></i>
-                        <span>LIVE RECONCILIATION MOMENT — AUTO-RESOLVING MULTI-SOURCE STATEMENTS</span>
+                    <div class="mockup-body">
+                        <div class="mockup-row mockup-row-head">
+                            <span>ID</span><span>DATE</span><span>SOURCE</span><span>TYPE</span><span>NET AMOUNT</span><span>CONFIDENCE</span>
+                        </div>
+                        <div class="mockup-row">
+                            <span class="val-mono">MT4-9841</span><span>2026-08-14</span><span>MetaTrader 4</span><span class="tag-badge tag-broker">Forex</span><span class="val-mono text-pos">+ $1,420.00</span><span class="conf-high">100%</span>
+                        </div>
+                        <div class="mockup-row">
+                            <span class="val-mono">PF-9041</span><span>2026-08-20</span><span>FTMO Payout</span><span class="tag-badge tag-prop">Prop Payout</span><span class="val-mono text-pos">+ $5,200.00</span><span class="conf-high">98%</span>
+                        </div>
+                        <div class="mockup-row">
+                            <span class="val-mono">RISE-302</span><span>2026-08-21</span><span>Deel / Rise</span><span class="tag-badge tag-payment">Fee</span><span class="val-mono text-neg">- $35.00</span><span class="conf-high">100%</span>
+                        </div>
                     </div>
-                    <button class="btn btn-sm btn-outline-paper" id="btn-replay-animation">
-                        <i data-lucide="refresh-cw"></i> Replay Resolution
-                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Bento Grid -->
+        <section class="features-section" id="features" aria-label="Core Capabilities">
+            <div class="section-container">
+                <div class="section-head">
+                    <p class="section-eyebrow">CAPABILITIES</p>
+                    <h2>Built for serious independent traders.</h2>
+                    <p class="section-sub">Everything you need to transform statement chaos into audit-proof financial records.</p>
                 </div>
 
-                <div class="ledger-sheet" id="hero-ledger-sheet">
-                    <!-- Scanner Beam Line -->
-                    <div class="scanner-beam" id="scanner-beam"></div>
-                    <div class="sheet-watermark">TRADE LEDGER ENGINE</div>
-
-                    <!-- Input Unreconciled Rows (Scatter State) -->
-                    <div class="scattered-rows-container" id="scattered-container">
-                        <div class="statement-row raw-broker" data-source="broker">
-                            <span class="source-tag tag-broker"><i data-lucide="activity"></i> Broker Live CSV</span>
-                            <span class="row-date">2026-08-10</span>
-                            <span class="row-details">EURUSD Buy 2.00 Lots • Ticket #7194012</span>
-                            <span class="row-pnl pos">+$1,420.00</span>
-                            <span class="row-status pending">Editable Prefill</span>
-                        </div>
-
-                        <div class="statement-row raw-prop" data-source="prop">
-                            <span class="source-tag tag-prop"><i data-lucide="award"></i> Finotive Prop Payout</span>
-                            <span class="row-date">2026-08-12</span>
-                            <span class="row-details">Payout Invoice #PF-9041 • Profit Split 80/20</span>
-                            <span class="row-pnl pos">+$5,200.00</span>
-                            <span class="row-status pending">Uncategorized Income</span>
-                        </div>
-
-                        <div class="statement-row raw-payout" data-source="payout">
-                            <span class="source-tag tag-payout"><i data-lucide="credit-card"></i> Deel / Rise Payout</span>
-                            <span class="row-date">2026-08-13</span>
-                            <span class="row-details">Wire Transfer Fee & Exchange Deductions</span>
-                            <span class="row-pnl neg">-$35.00</span>
-                            <span class="row-status pending">Fee Deduction Raw</span>
-                        </div>
-
-                        <div class="statement-row raw-futures" data-source="futures">
-                            <span class="source-tag tag-futures"><i data-lucide="bar-chart-2"></i> Tradovate Futures</span>
-                            <span class="row-date">2026-08-14</span>
-                            <span class="row-details">NQ Contract Note • NFA Exchange Fees</span>
-                            <span class="row-pnl pos">+$4,296.80</span>
-                            <span class="row-status pending">Needs 1256 / F&O Split</span>
+                <div class="bento-grid">
+                    <div class="bento-card">
+                        <div class="bento-icon"><i data-lucide="file-spreadsheet"></i></div>
+                        <h3>Deterministic Ingestion</h3>
+                        <p>Specialized parsers for MT4/MT5, prop-firm payout PDFs, Rise, Deel, Wise, Payoneer, and crypto exchange CSVs.</p>
+                        <div class="bento-visual">
+                            <div class="source-pills">
+                                <span>MetaTrader</span><span>FTMO</span><span>Rise</span><span>Deel</span><span>Binance</span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Resolved Consolidated Line -->
-                    <div class="resolved-ledger-container hidden" id="resolved-container">
-                        <div class="resolved-header">
-                            <i data-lucide="check-circle-2"></i>
-                            <span>CONSOLIDATED LEDGER RECORD — AUDIT REFERENCE #TL-2026-8894</span>
-                        </div>
-
-                        <div class="resolved-row">
-                            <div class="res-col">
-                                <span class="res-label">RECONCILED PERIOD</span>
-                                <span class="res-val mono">AUG 01 - AUG 15, 2026</span>
-                            </div>
-                            <div class="res-col">
-                                <span class="res-label">TOTAL INGESTED SOURCES</span>
-                                <span class="res-val mono">4 PLATFORMS (142 LINES)</span>
-                            </div>
-                            <div class="res-col">
-                                <span class="res-label">NET RECONCILED P&L</span>
-                                <span class="res-val mono pos">+$10,881.80 USD</span>
-                            </div>
-                            <div class="res-col">
-                                <span class="res-label">TAX SCHEDULE MAP</span>
-                                <span class="res-val mono">100% CPA / CA MATCHED</span>
+                    <div class="bento-card">
+                        <div class="bento-icon"><i data-lucide="globe-2"></i></div>
+                        <h3>Multi-Country Tax Tagging</h3>
+                        <p>Map items against country-specific filing schedules including US (Schedule C / Form 6781), IN (ITR-3 / 44ADA), UK, AU, and EU.</p>
+                        <div class="bento-visual">
+                            <div class="flag-tags">
+                                <span>🇺🇸 US</span><span>🇮🇳 IN</span><span>🇬🇧 UK</span><span>🇦🇺 AU</span><span>🇪🇺 EU</span>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Rubber Stamp Element -->
-                        <div class="stamp-box" id="rubber-stamp">
-                            <div class="stamp-border">
-                                <span class="stamp-text">RECONCILED</span>
-                                <span class="stamp-sub">ACCOUNTANT REVIEW PACK</span>
-                                <span class="stamp-date">2026-09-05</span>
+                    <div class="bento-card">
+                        <div class="bento-icon"><i data-lucide="download"></i></div>
+                        <h3>Accountant-Ready Exports</h3>
+                        <p>Generate clean CSV, multi-tab Excel workbooks, and printable PDF audit packages with client attestation headers.</p>
+                        <div class="bento-visual">
+                            <div class="export-badges">
+                                <span>.CSV</span><span>.XLSX</span><span>.PDF</span>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <div class="hero-cta-bar">
-                    <div class="cta-trust">
-                        <i data-lucide="lock"></i>
-                        <span>Reference-only estimates • Editable ledger rows before accountant export</span>
+        <!-- Workflow Section -->
+        <section class="workflow-section" id="workflow" aria-label="How it works">
+            <div class="section-container">
+                <div class="section-head text-center">
+                    <p class="section-eyebrow">WORKFLOW</p>
+                    <h2>Three steps to a clean tax pack.</h2>
+                    <p class="section-sub">Simple, reliable, and designed to save hours of manual sorting.</p>
+                </div>
+
+                <div class="workflow-steps">
+                    <div class="workflow-step">
+                        <div class="step-num">01</div>
+                        <h3>Upload Statements</h3>
+                        <p>Drop your raw broker CSVs, prop payout PDFs, and payment platform transaction records.</p>
                     </div>
-                    <form class="hero-waitlist-form" id="hero-quick-form">
-                        <input type="email" placeholder="Enter your email for priority beta access..." required class="hero-input">
+
+                    <div class="workflow-step">
+                        <div class="step-num">02</div>
+                        <h3>Review & Tag</h3>
+                        <p>Verify confidence scores, edit transaction details, and apply your tax jurisdiction reference tags.</p>
+                    </div>
+
+                    <div class="workflow-step">
+                        <div class="step-num">03</div>
+                        <h3>Export & Hand Off</h3>
+                        <p>Download your consolidated P&L pack and send it straight to your accountant or CPA.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section class="pricing-section" id="pricing" aria-label="Pass-Based Pricing">
+            <div class="section-container">
+                <div class="section-head text-center">
+                    <p class="section-eyebrow">PASS-BASED PRICING</p>
+                    <h2>Pay per period. No recurring subscriptions.</h2>
+                    <p class="section-sub">Simple crypto checkout. Purchase access only when you file.</p>
+                </div>
+
+                <div class="pricing-grid">
+                    <!-- Free Trial Card -->
+                    <div class="pricing-card">
+                        <div class="card-head">
+                            <h3>Free Trial</h3>
+                            <div class="price-val">$0</div>
+                            <p class="price-sub">1 free report generation</p>
+                        </div>
+                        <ul class="card-features">
+                            <li><i data-lucide="check"></i> 1 Full Reconciliation Report</li>
+                            <li><i data-lucide="check"></i> All Ingestion Sources Supported</li>
+                            <li><i data-lucide="check"></i> Single-Country Tax Tagging</li>
+                            <li><i data-lucide="check"></i> CSV & PDF Exports</li>
+                        </ul>
+                        <a href="login.html?mode=signup" class="btn btn-secondary-paper btn-block">Try Free Now</a>
+                    </div>
+
+                    <!-- Weekly Pass Card -->
+                    <div class="pricing-card">
+                        <div class="card-head">
+                            <span class="plan-badge">ESSENTIAL</span>
+                            <h3>Weekly Pass</h3>
+                            <div class="price-val">$4.99</div>
+                            <p class="price-sub">7 days full access</p>
+                        </div>
+                        <ul class="card-features">
+                            <li><i data-lucide="check"></i> Unlimited Report Generations</li>
+                            <li><i data-lucide="check"></i> 7 Days Active Access</li>
+                            <li><i data-lucide="check"></i> All Ingestion Sources Supported</li>
+                            <li><i data-lucide="check"></i> Single-Country Tax Tagging</li>
+                            <li><i data-lucide="check"></i> CSV & PDF Exports</li>
+                        </ul>
+                        <a href="login.html?plan=weekly&mode=signup" class="btn btn-stamp btn-block">Get Weekly Pass</a>
+                    </div>
+
+                    <!-- Monthly Pass Card -->
+                    <div class="pricing-card featured-plan">
+                        <div class="card-head">
+                            <span class="plan-badge stamp-badge">POPULAR</span>
+                            <h3>Monthly Pass</h3>
+                            <div class="price-val">$9.99</div>
+                            <p class="price-sub">30 days full access</p>
+                        </div>
+                        <ul class="card-features">
+                            <li><i data-lucide="check"></i> Unlimited Report Generations</li>
+                            <li><i data-lucide="check"></i> 30 Days Active Access</li>
+                            <li><i data-lucide="check"></i> All Ingestion Sources Supported</li>
+                            <li><i data-lucide="check"></i> Multi-Country Tax Tagging</li>
+                            <li><i data-lucide="check"></i> CSV, Excel (.xlsx) & PDF Exports</li>
+                            <li><i data-lucide="check"></i> 30-Day Persistent Ledger</li>
+                        </ul>
+                        <a href="login.html?plan=monthly&mode=signup" class="btn btn-stamp btn-block">Get Monthly Pass</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Waitlist / Lead Capture Form Section -->
+        <section class="waitlist-section" id="waitlist" aria-label="Join Priority Waitlist">
+            <div class="section-container text-center">
+                <p class="section-eyebrow">EARLY ACCESS</p>
+                <h2>Join the Trade Ledger Waitlist</h2>
+                <p class="section-sub">Get instant updates, early feature access, and tax filing reference guides.</p>
+
+                <form id="landing-waitlist-form" class="landing-waitlist-form" novalidate>
+                    <div class="form-row">
+                        <input type="email" name="email" id="waitlist-email" class="form-input" placeholder="Enter your email address" required>
                         <button type="submit" class="btn btn-stamp">
                             <span>Join Waitlist</span>
                             <i data-lucide="arrow-right"></i>
                         </button>
-                    </form>
-                </div>
-            </div>
-        </section>
-
-        <!-- Live Interactive Reconciliation Workspace Panel -->
-        <section class="section workspace-section" id="workspace">
-            <div class="section-header">
-                <span class="section-num">LIVE ENGINE DEMO / INTERACTIVE WORKSPACE</span>
-                <h2 class="section-title">Try The Statement Ingestion Engine Live</h2>
-                <p class="section-desc">Enter ledger rows directly, or upload broker live-account CSV exports, prop-firm payout records, payout-platform receipts, and crypto CSVs to prefill editable rows for multi-country reference exports.</p>
-            </div>
-
-            <div class="workspace-panel">
-                <div class="dropzone-box" id="ws-dropzone">
-                    <input type="file" id="ws-file-input" multiple class="hidden">
-                    <i data-lucide="upload-cloud" style="width:48px; height:48px; color:var(--ink-navy); margin-bottom:12px;"></i>
-                    <h3 style="font-family:var(--font-serif); font-size:1.25rem;">Drag & Drop Statements / Payout Files</h3>
-                    <p style="font-size:0.85rem; color:var(--ink-slate);">Supports broker live-account CSV exports, prop-firm payout records, Rise/Deel/Wise/Payoneer receipts, and Binance/crypto CSVs. MT4/MT5 raw statement files are not accepted.</p>
-                    
-                    <div style="margin-top:16px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-                        <button class="btn btn-secondary-paper" onclick="document.getElementById('ws-file-input').click()">Browse Local Files</button>
-                        <button class="btn btn-stamp" id="btn-load-all-samples"><i data-lucide="sparkles"></i> Load Built-in Demo Samples</button>
                     </div>
-                </div>
-
-                <div class="manual-entry-panel" aria-labelledby="manual-entry-title">
-                    <div class="manual-entry-header">
-                        <div>
-                            <span class="section-num">CORE INPUT</span>
-                            <h3 id="manual-entry-title">Editable Trader Ledger Form</h3>
-                        </div>
-                        <span class="source-tag tag-payout">Uploads prefill this same ledger</span>
-                    </div>
-                    <form id="manual-entry-form" class="manual-entry-grid">
-                        <label>Entry ID
-                            <input class="form-input" id="manual-id" placeholder="REC-001">
-                        </label>
-                        <label>Date
-                            <input class="form-input" id="manual-date" type="date" required>
-                        </label>
-                        <label>Source
-                            <input class="form-input" id="manual-source" placeholder="Broker / Prop firm / Wise" required>
-                        </label>
-                        <label>Type
-                            <select class="form-select" id="manual-type" required>
-                                <option value="forex">Forex / CFD</option>
-                                <option value="futures">Futures</option>
-                                <option value="prop-payout">Prop-firm payout</option>
-                                <option value="crypto">Crypto</option>
-                                <option value="transfer">Transfer / fee</option>
-                            </select>
-                        </label>
-                        <label>Description
-                            <input class="form-input" id="manual-description" placeholder="EURUSD close / payout certificate / transfer fee" required>
-                        </label>
-                        <label>Amount USD
-                            <input class="form-input" id="manual-amount" type="number" step="0.01" placeholder="0.00" required>
-                        </label>
-                        <button type="submit" class="btn btn-secondary-paper">
-                            <i data-lucide="plus"></i>
-                            Add Row
-                        </button>
-                    </form>
-                    <div id="ws-ingestion-errors" class="ingestion-errors hidden"></div>
-                </div>
-
-                <!-- Multi-Country Selection for Dual Filers -->
-                <div style="margin-bottom:24px;">
-                    <label style="font-family:var(--font-mono); font-size:0.8rem; font-weight:700; color:var(--ink-slate);">SELECT ACTIVE TAX JURISDICTIONS (SUPPORTS MULTIPLE):</label>
-                    <div class="country-checkbox-group">
-                        <label class="country-check-label"><input type="checkbox" name="ws-country" value="US"> 🇺🇸 United States (CPA Sec 1256 / Sch C)</label>
-                        <label class="country-check-label"><input type="checkbox" name="ws-country" value="IN"> 🇮🇳 India (CA ITR-3 / Sec 28(i) / 44ADA)</label>
-                        <label class="country-check-label"><input type="checkbox" name="ws-country" value="UK"> 🇬🇧 United Kingdom (HMRC Self Assessment)</label>
-                        <label class="country-check-label"><input type="checkbox" name="ws-country" value="AU"> 🇦🇺 Australia (ATO Individual Return)</label>
-                        <label class="country-check-label"><input type="checkbox" name="ws-country" value="EU"> 🇪🇺 European Union / Global (country-specific reference)</label>
-                    </div>
-                </div>
-
-                <!-- Multi-Country Liability Range Estimates Box -->
-                <div id="ws-country-estimates" style="margin-bottom:24px;"></div>
-
-                <!-- Action Bar & Exporters -->
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
-                    <h3 style="font-family:var(--font-serif); font-size:1.3rem;">Consolidated Reconciled Ledger (<span id="ws-line-count">0</span> Lines)</h3>
-                    <div style="display:flex; gap:8px;">
-                        <button class="btn btn-secondary-paper" id="btn-export-csv" disabled><i data-lucide="file-spreadsheet"></i> Export CSV</button>
-                        <button class="btn btn-secondary-paper" id="btn-export-excel" disabled><i data-lucide="file-text"></i> Export Excel (.xlsx)</button>
-                        <button class="btn btn-stamp" id="btn-export-pdf" disabled><i data-lucide="printer"></i> Printable Accountant PDF</button>
-                    </div>
-                </div>
-
-                <label class="attestation-box">
-                    <input type="checkbox" id="ws-attestation">
-                    <span>I confirm this data is accurate to the best of my knowledge and understand all tax figures are estimates to verify with a licensed accountant.</span>
-                </label>
-
-                <div class="ledger-table-wrapper">
-                    <table class="hairline-table">
-                        <thead>
-                            <tr>
-                                <th>ID / TICKET</th>
-                                <th>DATE</th>
-                                <th>SOURCE PLATFORM</th>
-                                <th>INSTRUMENT CLASS</th>
-                                <th>DETAILS / DESCRIPTION</th>
-                                <th>AMOUNT (USD)</th>
-                                <th>CONFIDENCE SCORE</th>
-                                <th>JURISDICTION TAX HEAD TAGS</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ws-tbody-ledger">
-                            <tr>
-                                <td colspan="8" class="text-center" style="padding:32px; color:var(--ink-muted);">No statements ingested yet. Click "Load Built-in Demo Samples" above.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- Problem Statement Section (Hairline Ledger Grid) -->
-        <section class="section problem-section">
-            <div class="section-header">
-                <span class="section-num">01 / THE PROBLEM</span>
-                <h2 class="section-title">The Multi-Platform Statement Chaos</h2>
-                <p class="section-desc">Modern traders don't trade on one platform. You may use live broker accounts, prop firm accounts, futures platforms, and payout rails like Rise, Deel, Wise, Payoneer, or crypto exchanges, leaving you and your accountant with mismatched CSVs, receipts, and transaction fees.</p>
-            </div>
-
-            <div class="ledger-table-wrapper">
-                <table class="hairline-table">
-                    <thead>
-                        <tr>
-                            <th>RECONCILIATION CHALLENGE</th>
-                            <th>THE MESSY MANUAL WAY</th>
-                            <th>THE TRADE LEDGER WAY</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Prop Firm Payouts</strong></td>
-                            <td class="text-neg">Handing your CPA 15 separate Deel/Rise invoices with missing original account references.</td>
-                            <td class="text-pos">Automated payout matching linking prop firm IDs, original USD payouts, and local currency bank deposits.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Forex & Futures Brokers</strong></td>
-                            <td class="text-neg">Combining broker CSV exports and futures contract notes in custom Excel sheets.</td>
-                            <td class="text-pos">Editable normalization layer extracting tickets, commission, swap, and net closed P&L from accepted source files.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Exchange Fees & Spreads</strong></td>
-                            <td class="text-neg">Manually separating gross payouts, fees, rollover, and swap lines across several sources.</td>
-                            <td class="text-pos">Fee and swap lines are organized into reference categories for accountant review.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Accountant Handoff</strong></td>
-                            <td class="text-neg">CPAs charging $500-$2,000 extra just to sort through raw screenshots and unstructured PDFs.</td>
-                            <td class="text-pos">One-click export of a standardized 4-tab Excel reconciliation pack for accountant review or self-filing.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Workflow 3-Step Sequence -->
-        <section class="section workflow-section" id="workflow">
-            <div class="section-header">
-                <span class="section-num">02 / HOW IT WORKS</span>
-                <h2 class="section-title">Three Steps from Chaos to Tax-Ready</h2>
-                <p class="section-desc">Built specifically for prop traders, forex scalpers, futures traders, and crypto investors.</p>
-            </div>
-
-            <div class="workflow-grid">
-                <div class="workflow-card">
-                    <div class="card-step-num">STEP 01</div>
-                    <div class="card-icon"><i data-lucide="upload-cloud"></i></div>
-                    <h3>Upload Raw Exports</h3>
-                    <p>Enter rows manually or prefill the ledger from broker live-account CSV exports, futures records, prop-firm certificates, and payout receipts.</p>
-                    <div class="card-footer-tag">MT4/MT5 raw statement files are rejected</div>
-                </div>
-
-                <div class="workflow-card">
-                    <div class="card-step-num">STEP 02</div>
-                    <div class="card-icon"><i data-lucide="cpu"></i></div>
-                    <h3>Auto-Categorize & Reconcile</h3>
-                    <p>Our deterministic engine matches trade executions, resolves fee lines, converts currencies with stated reference rates, and maps tax heads for review.</p>
-                    <div class="card-footer-tag">Deterministic Engine + Confidence Guard</div>
-                </div>
-
-                <div class="workflow-card">
-                    <div class="card-step-num">STEP 03</div>
-                    <div class="card-icon"><i data-lucide="file-check"></i></div>
-                    <h3>Export Accountant Pack</h3>
-                    <p>Download a clean, audit-stamped Excel Pack containing Consolidated Trade Ledger, Prop Payout Schedule, Fee Audit, and Cover Sheet.</p>
-                    <div class="card-footer-tag">Hand Directly to Your CPA / CA</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Sources Covered Section -->
-        <section class="section sources-section" id="sources">
-            <div class="section-header">
-                <span class="section-num">03 / INTEGRATION COVERAGE</span>
-                <h2 class="section-title">Built to Ingest Every Trading Ecosystem</h2>
-                <p class="section-desc">We support raw files from the platforms you trade on every day.</p>
-            </div>
-
-            <div class="sources-tabs">
-                <button class="source-tab-btn active" data-source-tab="tab-brokers">Trading Brokers</button>
-                <button class="source-tab-btn" data-source-tab="tab-props">Prop Firms</button>
-                <button class="source-tab-btn" data-source-tab="tab-payouts">Payout Platforms</button>
-                <button class="source-tab-btn" data-source-tab="tab-crypto">Crypto & Futures</button>
-            </div>
-
-            <div class="sources-content-box">
-                <!-- Brokers -->
-                <div class="source-tab-content active" id="tab-brokers">
-                    <div class="sources-grid">
-                        <div class="source-item"><i data-lucide="activity"></i> <span>Broker live-account CSV exports</span></div>
-                        <div class="source-item"><i data-lucide="activity"></i> <span>cTrader CSV exports</span></div>
-                        <div class="source-item"><i data-lucide="activity"></i> <span>Tradovate Contract Notes</span></div>
-                        <div class="source-item"><i data-lucide="activity"></i> <span>Rithmic Execution Logs</span></div>
-                        <div class="source-item"><i data-lucide="activity"></i> <span>Interactive Brokers (Flex Query)</span></div>
-                        <div class="source-item"><i data-lucide="activity"></i> <span>XM / Blueberry / IC Markets</span></div>
-                        <div class="source-item"><i data-lucide="activity"></i> <span>NinjaTrader Statements</span></div>
-                    </div>
-                </div>
-
-                <!-- Prop Firms -->
-                <div class="source-tab-content" id="tab-props">
-                    <div class="sources-grid">
-                        <div class="source-item"><i data-lucide="award"></i> <span>FTMO Payout Statements</span></div>
-                        <div class="source-item"><i data-lucide="award"></i> <span>Finotive Funding Certificates</span></div>
-                        <div class="source-item"><i data-lucide="award"></i> <span>Instant Funding Invoices</span></div>
-                        <div class="source-item"><i data-lucide="award"></i> <span>FundedNext Payout Receipts</span></div>
-                        <div class="source-item"><i data-lucide="award"></i> <span>FXIFY Account Summaries</span></div>
-                        <div class="source-item"><i data-lucide="award"></i> <span>Fintokei Certificates</span></div>
-                        <div class="source-item"><i data-lucide="award"></i> <span>The Funded Trader Reports</span></div>
-                        <div class="source-item"><i data-lucide="award"></i> <span>Custom Prop Firm Invoices</span></div>
-                    </div>
-                </div>
-
-                <!-- Payout Platforms -->
-                <div class="source-tab-content" id="tab-payouts">
-                    <div class="sources-grid">
-                        <div class="source-item"><i data-lucide="credit-card"></i> <span>Rise Pay Receipts</span></div>
-                        <div class="source-item"><i data-lucide="credit-card"></i> <span>Deel Invoices & Contract Records</span></div>
-                        <div class="source-item"><i data-lucide="credit-card"></i> <span>Wise Transfer Statements</span></div>
-                        <div class="source-item"><i data-lucide="credit-card"></i> <span>Payoneer Transaction Logs</span></div>
-                        <div class="source-item"><i data-lucide="credit-card"></i> <span>PayPal Commercial Reports</span></div>
-                        <div class="source-item"><i data-lucide="credit-card"></i> <span>Direct Swift / Bank Wires</span></div>
-                    </div>
-                </div>
-
-                <!-- Crypto & Futures -->
-                <div class="source-tab-content" id="tab-crypto">
-                    <div class="sources-grid">
-                        <div class="source-item"><i data-lucide="coins"></i> <span>Binance Futures / Spot CSV</span></div>
-                        <div class="source-item"><i data-lucide="coins"></i> <span>Bybit Derivatives History</span></div>
-                        <div class="source-item"><i data-lucide="coins"></i> <span>Coinbase Pro Reports</span></div>
-                        <div class="source-item"><i data-lucide="coins"></i> <span>OKX Execution Statements</span></div>
-                        <div class="source-item"><i data-lucide="coins"></i> <span>On-Chain USDT / USDC Payouts</span></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Country Tax Categorization Concept -->
-        <section class="section country-section" id="country-section">
-            <div class="section-header">
-                <span class="section-num">04 / GLOBAL TAX LOGIC</span>
-                <h2 class="section-title">Tailored Tax Categorization for Your Jurisdiction</h2>
-                <p class="section-desc">Select your target country to see how Trade Ledger maps trading P&L and prop payouts into official tax-reference categories.</p>
-            </div>
-
-            <div class="country-preview-box">
-                <div class="country-selector-bar">
-                    <button class="country-btn active" data-country="US">
-                        <span class="flag">🇺🇸</span> <span>United States</span>
-                    </button>
-                    <button class="country-btn" data-country="IN">
-                        <span class="flag">🇮🇳</span> <span>India</span>
-                    </button>
-                    <button class="country-btn" data-country="UK">
-                        <span class="flag">🇬🇧</span> <span>United Kingdom</span>
-                    </button>
-                    <button class="country-btn" data-country="AU">
-                        <span class="flag">🇦🇺</span> <span>Australia</span>
-                    </button>
-                    <button class="country-btn" data-country="EU">
-                        <span class="flag">🇪🇺</span> <span>EU / Global</span>
-                    </button>
-                </div>
-
-                <div class="country-details-card" id="country-details-card">
-                    <!-- Dynamic Country Content -->
-                </div>
-            </div>
-        </section>
-
-        <!-- Linear-Inspired Pricing Section -->
-        <section class="section pricing-section" id="pricing">
-            <div class="section-header text-center" style="max-width:720px; margin:0 auto 40px auto;">
-                <span class="section-num">SIMPLE, TRANSPARENT PRICING</span>
-                <h2 class="section-title">Flexible Passes for Every Trading Volume</h2>
-                <p class="section-desc">No recurring subscriptions required. Pay per pass or choose unlimited accountant exports.</p>
-            </div>
-
-            <div class="pricing-grid">
-                <!-- Weekly Pass -->
-                <div class="pricing-card">
-                    <div class="pricing-header">
-                        <span class="pricing-plan-tag">WEEKLY PASS</span>
-                        <div class="pricing-price">$4.99 <span>/ 7 days</span></div>
-                        <p class="pricing-sub">Ideal for single-broker end-of-week reporting.</p>
-                    </div>
-                    <ul class="pricing-features">
-                        <li><i data-lucide="check"></i> 1 Tax Jurisdiction Schedule</li>
-                        <li><i data-lucide="check"></i> CSV & PDF Exporters</li>
-                        <li><i data-lucide="check"></i> Up to 3 Account Prefills</li>
-                        <li><i data-lucide="check"></i> Confidence Scoring Engine</li>
-                    </ul>
-                    <a href="login.html?plan=weekly&mode=signup" class="btn btn-secondary-paper btn-block">Select Weekly Plan</a>
-                </div>
-
-                <!-- Monthly Pass (Popular) -->
-                <div class="pricing-card featured">
-                    <div class="pricing-header">
-                        <span class="pricing-plan-tag highlight">MOST POPULAR</span>
-                        <div class="pricing-price">$9.99 <span>/ 30 days</span></div>
-                        <p class="pricing-sub">Full access for multi-account funded traders.</p>
-                    </div>
-                    <ul class="pricing-features">
-                        <li><i data-lucide="check"></i> Multiple Active Jurisdictions</li>
-                        <li><i data-lucide="check"></i> All Exporters (SheetJS Excel, CSV, PDF)</li>
-                        <li><i data-lucide="check"></i> Unlimited Statement Prefills</li>
-                        <li><i data-lucide="check"></i> Prop Firm Payout Matching</li>
-                        <li><i data-lucide="check"></i> Priority Email Support</li>
-                    </ul>
-                    <a href="login.html?plan=monthly&mode=signup" class="btn btn-stamp btn-block">Select Monthly Plan</a>
-                </div>
-
-                <!-- Firm / CPA Pass -->
-                <div class="pricing-card">
-                    <div class="pricing-header">
-                        <span class="pricing-plan-tag">FIRM / CPA</span>
-                        <div class="pricing-price">$49 <span>/ month</span></div>
-                        <p class="pricing-sub">Built for CPAs, CAs, and Tax Firms.</p>
-                    </div>
-                    <ul class="pricing-features">
-                        <li><i data-lucide="check"></i> Multi-Client Management</li>
-                        <li><i data-lucide="check"></i> Custom Jurisdiction Tax Rules</li>
-                        <li><i data-lucide="check"></i> Unlimited Client Exports</li>
-                        <li><i data-lucide="check"></i> White-Label PDF Cover Sheets</li>
-                    </ul>
-                    <a href="login.html?plan=firm&mode=signup" class="btn btn-secondary-paper btn-block">Contact Sales</a>
-                </div>
-            </div>
-        </section>
-
-        <!-- Waitlist / Signup Section -->
-        <section class="section waitlist-section" id="waitlist">
-            <div class="waitlist-card">
-                <div class="waitlist-header">
-                    <div class="badge-vip">
-                        <i data-lucide="sparkles"></i>
-                        <span>LIMITED BETA BATCH 1 — 42 SPOTS REMAINING</span>
-                    </div>
-                    <h2>Join the Trade Ledger Priority Waitlist</h2>
-                    <p>Be the first to turn your messy broker and prop firm statements into one clean accountant pack.</p>
-                </div>
-
-                <form class="waitlist-full-form" id="full-waitlist-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="user-name">Full Name</label>
-                            <input type="text" id="user-name" placeholder="e.g. Alex Mercer" required class="form-input">
-                        </div>
-                        <div class="form-group">
-                            <label for="user-email">Email Address</label>
-                            <input type="email" id="user-email" placeholder="alex@trader.com" required class="form-input">
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="user-role">Primary Trading Role</label>
-                            <select id="user-role" class="form-select" required>
-                                <option value="" disabled selected>Select your trading profile...</option>
-                                <option value="Prop Firm Trader">Prop Firm Trader (Multiple Funded Accounts)</option>
-                                <option value="Retail Forex / CFD Trader">Retail Forex / CFD Trader</option>
-                                <option value="Futures & Commodities Trader">Futures & Commodities Trader</option>
-                                <option value="CPA / CA / Tax Professional">CPA / CA / Tax Accountant</option>
-                                <option value="Crypto & Multi-Asset Trader">Crypto & Multi-Asset Trader</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="user-country">Primary Tax Jurisdiction</label>
-                            <select id="user-country" class="form-select" required>
-                                <option value="United States">United States (CPA Schedule C / Sec 1256)</option>
-                                <option value="India">India (CA ITR-3 / Sec 28(i) / Sec 44ADA)</option>
-                                <option value="United Kingdom">United Kingdom (HMRC Self Assessment)</option>
-                                <option value="Australia">Australia (ATO Tax Return)</option>
-                                <option value="Canada">Canada (CRA T2125)</option>
-                                <option value="European Union">European Union</option>
-                                <option value="Other / Global">Other International Jurisdiction</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Primary Platforms & Brokers Used (Select all that apply)</label>
-                        <div class="checkbox-grid">
-                            <label class="checkbox-label"><input type="checkbox" name="platforms" value="broker-csv" checked> Broker live-account CSV</label>
-                            <label class="checkbox-label"><input type="checkbox" name="platforms" value="Prop Firms" checked> Prop Firm Payouts (FTMO, Finotive, etc.)</label>
-                            <label class="checkbox-label"><input type="checkbox" name="platforms" value="Rise/Deel"> Rise Pay / Deel</label>
-                            <label class="checkbox-label"><input type="checkbox" name="platforms" value="Futures"> Futures (Tradovate/Rithmic)</label>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-stamp btn-lg btn-block">
-                        <i data-lucide="stamp"></i>
-                        <span>RESERVE MY BETA ACCESS SPOT</span>
-                    </button>
+                    <p id="waitlist-status" class="form-status" aria-live="polite"></p>
                 </form>
             </div>
         </section>
+    </main>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <div class="footer-disclaimer-box">
-                <i data-lucide="scale"></i>
-                <div class="disclaimer-text">
-                    <strong>LEGAL & REGULATORY DISCLAIMER:</strong> 
-                    Trade Ledger is a software data compilation, normalization, and statement parsing tool built for traders, CPAs, and Chartered Accountants. 
-                    Trade Ledger is not a registered tax advisor, certified public accountant firm, tax filing service, or source of prescriptive tax-saving advice. Trade Ledger does not provide tax, legal, or investment advice. 
-                    All output reports are compiled financial ledger summaries intended for review by qualified tax professionals prior to official tax return submission.
-                </div>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <div class="brand-seal"><span class="seal-inner">TL</span></div>
+                <span>TRADE LEDGER</span>
             </div>
-
-            <div class="footer-bottom">
-                <div class="footer-brand">
-                    <span class="stamp-inline">TL</span>
-                    <span>TRADE LEDGER &copy; 2026 • GLOBAL DATA COMPILATION LAYER</span>
-                </div>
-                <div class="footer-links">
-                    <a href="#waitlist">Beta Waitlist</a>
-                    <span>•</span>
-                    <a href="#country-section">Tax Logic</a>
-                    <span>•</span>
-                    <a href="#workflow">Workflow</a>
-                    <span>•</span>
-                    <a href="login.html?mode=signin">Log in</a>
-                </div>
-            </div>
-        </footer>
-
-    </div>
-
-    <!-- Success Modal -->
-    <div class="modal-overlay hidden" id="success-modal">
-        <div class="modal-card">
-            <div class="modal-stamp">
-                <div class="stamp-border">
-                    <span class="stamp-text">REGISTERED</span>
-                    <span class="stamp-sub">BETA BATCH 1 CONFIRMED</span>
-                </div>
-            </div>
-            <h3>Welcome to Trade Ledger Beta!</h3>
-            <p>Your spot has been reserved on the priority ledger waitlist. We will notify you as soon as statement ingestion opens for your jurisdiction.</p>
-            <button class="btn btn-stamp btn-block" id="btn-close-modal">Back to Overview</button>
+            <p class="footer-disclaimer">
+                Reference tool only. Trade Ledger compiles financial statements for accountant review and is not a tax filing service or licensed tax advisor.
+            </p>
+            <p class="footer-copy">&copy; 2026 Trade Ledger. All rights reserved.</p>
         </div>
-    </div>
+    </footer>
 
-    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/parsers/unified-parsers.js"></script>
-    <script src="js/engine/reconciliation.js"></script>
-    <script src="js/export/exporter.js"></script>
-    <script src="js/samples/sample-data.js"></script>
-    <script src="app.js"></script>
     <script>
-        if (window.TradeLedgerAuth) window.TradeLedgerAuth.init();
-        if (window.lucide) lucide.createIcons();
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+
+            // Handle Lead Capture Form Submission
+            const waitlistForm = document.getElementById('landing-waitlist-form');
+            const emailInput = document.getElementById('waitlist-email');
+            const statusEl = document.getElementById('waitlist-status');
+
+            if (waitlistForm && emailInput && statusEl) {
+                waitlistForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = emailInput.value.trim();
+                    if (!email || !email.includes('@')) {
+                        statusEl.textContent = 'Please enter a valid email address.';
+                        statusEl.style.color = 'var(--stamp-red)';
+                        return;
+                    }
+
+                    statusEl.textContent = 'Saving your spot...';
+                    statusEl.style.color = 'var(--accent-gold)';
+
+                    try {
+                        await TradeLedgerAuth.persistLead(email, 'landing_waitlist');
+                        statusEl.textContent = 'Thank you! You are on the Trade Ledger waitlist.';
+                        statusEl.style.color = 'var(--accent-green)';
+                        waitlistForm.reset();
+                    } catch (err) {
+                        statusEl.textContent = err.message || 'Error saving lead. Please try again.';
+                        statusEl.style.color = 'var(--stamp-red)';
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>
