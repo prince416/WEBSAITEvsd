@@ -397,14 +397,87 @@ document.addEventListener('DOMContentLoaded', () => {
     const successModal = document.getElementById('success-modal');
     const btnCloseModal = document.getElementById('btn-close-modal');
 
-    function handleFormSubmit(e) {
+    // Set this to the Formspree endpoint created for Trade Ledger before launch.
+    const LEAD_ENDPOINT = 'https://formspree.io/f/REPLACE_WITH_FORM_ID';
+
+    async function handleFormSubmit(e) {
         e.preventDefault();
-        if (successModal) successModal.classList.remove('hidden');
+        const form = e.currentTarget;
+        const status = form.parentElement.querySelector('.form-status') || form.querySelector('.form-status');
+        const submitButton = form.querySelector('button[type="submit"]');
+
+        if (LEAD_ENDPOINT.includes('REPLACE_WITH_FORM_ID')) {
+            if (status) {
+                status.textContent = 'Lead capture is not configured yet. Add the Formspree form ID before accepting signups.';
+                status.dataset.state = 'error';
+            }
+            return;
+        }
+
+        const formData = new FormData(form);
+        formData.append('source', form.dataset.leadSource || 'website');
+        formData.append('_subject', 'New Trade Ledger waitlist lead');
+        if (submitButton) submitButton.disabled = true;
+        if (status) {
+            status.textContent = 'Saving your spot...';
+            status.dataset.state = 'loading';
+        }
+
+        try {
+            const response = await fetch(LEAD_ENDPOINT, {
+                method: 'POST',
+                body: formData,
+                headers: { Accept: 'application/json' }
+            });
+            if (!response.ok) throw new Error('Lead provider rejected the submission.');
+
+            form.reset();
+            if (status) {
+                status.textContent = '';
+                status.dataset.state = '';
+            }
+            if (successModal) successModal.classList.remove('hidden');
+        } catch (error) {
+            if (status) {
+                status.textContent = 'We could not save your details. Please try again in a moment.';
+                status.dataset.state = 'error';
+            }
+        } finally {
+            if (submitButton) submitButton.disabled = false;
+        }
     }
 
     if (heroQuickForm) heroQuickForm.addEventListener('submit', handleFormSubmit);
     if (fullWaitlistForm) fullWaitlistForm.addEventListener('submit', handleFormSubmit);
     if (btnCloseModal) btnCloseModal.addEventListener('click', () => successModal.classList.add('hidden'));
+
+    // Landing-only depth: input follows the visitor without changing workspace behavior.
+    const landingSections = document.querySelectorAll('.landing-depth-section, .landing-hero');
+    const supportsReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!supportsReducedMotion) {
+        window.addEventListener('scroll', () => {
+            landingSections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                const offset = Math.max(-1, Math.min(1, rect.top / window.innerHeight - 0.5));
+                section.style.setProperty('--scroll-depth', `${offset * -16}px`);
+            });
+        }, { passive: true });
+
+        const heroStage = document.querySelector('.hero-product-stage');
+        if (heroStage) {
+            heroStage.addEventListener('pointermove', (event) => {
+                const bounds = heroStage.getBoundingClientRect();
+                const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+                const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+                heroStage.style.setProperty('--tilt-x', `${y * -5}deg`);
+                heroStage.style.setProperty('--tilt-y', `${x * 6}deg`);
+            });
+            heroStage.addEventListener('pointerleave', () => {
+                heroStage.style.setProperty('--tilt-x', '0deg');
+                heroStage.style.setProperty('--tilt-y', '0deg');
+            });
+        }
+    }
 
     // Boot synthetic samples on load
     loadAllSyntheticSamples();

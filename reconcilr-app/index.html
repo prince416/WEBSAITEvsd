@@ -31,7 +31,7 @@
             <div class="header-inner">
                 <div class="brand-group">
                     <div class="brand-seal">
-                        <span class="seal-inner">REC</span>
+                        <span class="seal-inner">TL</span>
                     </div>
                     <div class="brand-titles">
                         <span class="brand-name">TRADE LEDGER</span>
@@ -68,7 +68,7 @@
         </div>
 
         <!-- Hero Section -->
-        <section class="hero-section">
+        <section class="hero-section landing-dark landing-hero">
             <div class="hero-header">
                 <div class="hero-kicker">
                     <i data-lucide="scale"></i>
@@ -180,13 +180,14 @@
                         <i data-lucide="lock"></i>
                         <span>Reference-only estimates • Editable ledger rows before accountant export</span>
                     </div>
-                    <form class="hero-waitlist-form" id="hero-quick-form">
-                        <input type="email" placeholder="Enter your email for priority beta access..." required class="hero-input">
+                    <form class="hero-waitlist-form lead-form" id="hero-quick-form" data-lead-source="hero">
+                        <input type="email" name="email" placeholder="Email for priority access" required class="hero-input" autocomplete="email">
                         <button type="submit" class="btn btn-stamp">
                             <span>JOIN WAITLIST</span>
                             <i data-lucide="arrow-right"></i>
                         </button>
                     </form>
+                    <p class="form-status" aria-live="polite"></p>
                 </div>
             </div>
         </section>
@@ -308,7 +309,7 @@
         </section>
 
         <!-- Problem Statement Section (Hairline Ledger Grid) -->
-        <section class="section problem-section">
+        <section class="section problem-section landing-dark landing-depth-section">
             <div class="section-header">
                 <span class="section-num">01 / THE PROBLEM</span>
                 <h2 class="section-title">The Multi-Platform Statement Chaos</h2>
@@ -351,7 +352,7 @@
         </section>
 
         <!-- How It Works Section (3-Step Sequence) -->
-        <section class="section workflow-section">
+        <section class="section workflow-section landing-dark landing-depth-section" id="workflow-section">
             <div class="section-header">
                 <span class="section-num">02 / HOW IT WORKS</span>
                 <h2 class="section-title">Three Steps from Chaos to Tax-Ready</h2>
@@ -386,7 +387,7 @@
         </section>
 
         <!-- Sources Covered Section -->
-        <section class="section sources-section">
+        <section class="section sources-section landing-dark landing-depth-section">
             <div class="section-header">
                 <span class="section-num">03 / INTEGRATION COVERAGE</span>
                 <h2 class="section-title">Built to Ingest Every Trading Ecosystem</h2>
@@ -454,7 +455,7 @@
         </section>
 
         <!-- Country Tax Categorization Concept -->
-        <section class="section country-section" id="country-section">
+        <section class="section country-section landing-dark landing-depth-section" id="country-section">
             <div class="section-header">
                 <span class="section-num">04 / GLOBAL TAX LOGIC</span>
                 <h2 class="section-title">Tailored Tax Categorization for Your Jurisdiction</h2>
@@ -487,7 +488,7 @@
         </section>
 
         <!-- Waitlist / Signup Section -->
-        <section class="section waitlist-section" id="waitlist">
+        <section class="section waitlist-section landing-dark landing-depth-section" id="waitlist">
             <div class="waitlist-card">
                 <div class="waitlist-header">
                     <div class="badge-vip">
@@ -498,22 +499,22 @@
                     <p>Be the first to turn your messy broker and prop firm statements into one clean accountant pack.</p>
                 </div>
 
-                <form class="waitlist-full-form" id="full-waitlist-form">
+                <form class="waitlist-full-form lead-form" id="full-waitlist-form" data-lead-source="waitlist">
                     <div class="form-row">
                         <div class="form-group">
                             <label for="user-name">Full Name</label>
-                            <input type="text" id="user-name" placeholder="e.g. Alex Mercer" required class="form-input">
+                            <input type="text" id="user-name" name="name" placeholder="e.g. Alex Mercer" required class="form-input" autocomplete="name">
                         </div>
                         <div class="form-group">
                             <label for="user-email">Email Address</label>
-                            <input type="email" id="user-email" placeholder="alex@trader.com" required class="form-input">
+                            <input type="email" id="user-email" name="email" placeholder="alex@trader.com" required class="form-input" autocomplete="email">
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label for="user-role">Primary Trading Role</label>
-                            <select id="user-role" class="form-select" required>
+                            <select id="user-role" name="role" class="form-select" required>
                                 <option value="" disabled selected>Select your trading profile...</option>
                                 <option value="Prop Firm Trader">Prop Firm Trader (Multiple Funded Accounts)</option>
                                 <option value="Retail Forex / CFD Trader">Retail Forex / CFD Trader</option>
@@ -524,7 +525,7 @@
                         </div>
                         <div class="form-group">
                             <label for="user-country">Primary Tax Jurisdiction</label>
-                            <select id="user-country" class="form-select" required>
+                            <select id="user-country" name="country" class="form-select" required>
                                 <option value="United States">United States (CPA Schedule C / Sec 1256)</option>
                                 <option value="India">India (CA ITR-3 / Sec 28(i) / Sec 44ADA)</option>
                                 <option value="United Kingdom">United Kingdom (HMRC Self Assessment)</option>
@@ -550,6 +551,7 @@
                         <i data-lucide="stamp"></i>
                         <span>RESERVE MY BETA ACCESS SPOT</span>
                     </button>
+                    <p class="form-status" aria-live="polite"></p>
                 </form>
             </div>
         </section>
