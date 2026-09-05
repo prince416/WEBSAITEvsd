@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CA Layer | Trading & Prop Payout Reconciliation Platform</title>
+    <meta name="description" content="The layer between messy trading statements and your CA. Ingest MT4, MT5, and prop firm payouts into a clean, tax-categorized CA exportable reconciliation pack.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- SheetJS for Client-Side Excel Generation -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Navigation -->
+        <header class="navbar">
+            <div class="logo-group">
+                <div class="logo-icon">
+                    <i data-lucide="layers"></i>
+                </div>
+                <div class="logo-text">
+                    <span class="brand-title">CA Layer</span>
+                    <span class="brand-badge">Statement Engine v1.0</span>
+                </div>
+            </div>
+            
+            <div class="nav-actions">
+                <div class="privacy-pill">
+                    <i data-lucide="shield-check"></i>
+                    <span>100% In-Browser Privacy</span>
+                </div>
+                <button class="btn btn-outline" id="btn-demo-samples">
+                    <i data-lucide="sparkles"></i>
+                    <span>Load Demo Samples</span>
+                </button>
+                <button class="btn btn-primary" id="btn-export-top" disabled>
+                    <i data-lucide="download"></i>
+                    <span>Export CA Pack (.xlsx)</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Banner / Positioning Header -->
+        <section class="hero-banner">
+            <div class="hero-content">
+                <div class="positioning-pill">
+                    <i data-lucide="file-check-2"></i>
+                    <span>The layer between messy trading statements and your CA</span>
+                </div>
+                <h1 class="hero-title">Turn MT4/MT5 & Prop Payout Mess into a Clean CA-Ready Ledger</h1>
+                <p class="hero-subtitle">
+                    Upload raw statements from MetaTrader, Instant Funding, Finotive, Blueberry, and futures brokers. 
+                    Get a standardized, tax-categorized reconciliation pack formatted for your Chartered Accountant.
+                </p>
+            </div>
+        </section>
+
+        <!-- Upload & Dropzone Area -->
+        <section class="upload-section">
+            <div class="dropzone-card" id="dropzone">
+                <input type="file" id="file-input" multiple accept=".html,.htm,.csv,.txt" class="file-input-hidden">
+                <div class="dropzone-icon-wrapper">
+                    <i data-lucide="upload-cloud"></i>
+                </div>
+                <div class="dropzone-text">
+                    <h3>Drag & Drop Trading Statements or Payout Receipts</h3>
+                    <p>Supports MT4/MT5 HTML & CSV reports, Prop Firm Payout Invoices, and Account Summaries</p>
+                </div>
+                <div class="dropzone-actions">
+                    <button class="btn btn-secondary" onclick="document.getElementById('file-input').click()">
+                        <i data-lucide="folder-open"></i> Browse Files
+                    </button>
+                    <div class="quick-samples-inline">
+                        <span class="quick-label">Try instant samples:</span>
+                        <button class="chip-btn" data-sample="mt4-html">MT4 HTML</button>
+                        <button class="chip-btn" data-sample="mt5-csv">MT5 CSV</button>
+                        <button class="chip-btn" data-sample="prop-payout">Prop Payout</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Processed Files & Status Bar -->
+        <section class="file-status-bar hidden" id="file-status-bar">
+            <div class="file-summary-title">
+                <i data-lucide="files"></i>
+                <span>Ingested Statements (<span id="ingested-count">0</span>)</span>
+            </div>
+            <div class="file-chip-container" id="file-chip-container">
+                <!-- Dynamically populated chips -->
+            </div>
+            <button class="btn btn-sm btn-ghost" id="btn-clear-all">
+                <i data-lucide="trash-2"></i> Clear All
+            </button>
+        </section>
+
+        <!-- Summary Metrics Dashboard -->
+        <section class="dashboard-grid">
+            <div class="metric-card glass">
+                <div class="metric-header">
+                    <span class="metric-label">Consolidated Net P&L</span>
+                    <div class="metric-icon green"><i data-lucide="trending-up"></i></div>
+                </div>
+                <div class="metric-value" id="val-net-pnl">₹0.00</div>
+                <div class="metric-sub" id="sub-net-pnl">From 0 trades & payouts</div>
+            </div>
+
+            <div class="metric-card glass">
+                <div class="metric-header">
+                    <span class="metric-label">Prop Firm Payouts</span>
+                    <div class="metric-icon purple"><i data-lucide="wallet"></i></div>
+                </div>
+                <div class="metric-value" id="val-prop-payouts">₹0.00</div>
+                <div class="metric-sub" id="sub-prop-payouts">Service/Contractor Income</div>
+            </div>
+
+            <div class="metric-card glass">
+                <div class="metric-header">
+                    <span class="metric-label">Speculative Trading P&L</span>
+                    <div class="metric-icon blue"><i data-lucide="activity"></i></div>
+                </div>
+                <div class="metric-value" id="val-spec-pnl">₹0.00</div>
+                <div class="metric-sub" id="sub-spec-pnl">Intraday / Spot Forex</div>
+            </div>
+
+            <div class="metric-card glass">
+                <div class="metric-header">
+                    <span class="metric-label">F&O / Business P&L</span>
+                    <div class="metric-icon amber"><i data-lucide="bar-chart-3"></i></div>
+                </div>
+                <div class="metric-value" id="val-fo-pnl">₹0.00</div>
+                <div class="metric-sub" id="sub-fo-pnl">Futures & Derivatives</div>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs -->
+        <section class="workspace-section glass">
+            <div class="tabs-header">
+                <div class="tabs-list">
+                    <button class="tab-btn active" data-tab="tab-overview">
+                        <i data-lucide="pie-chart"></i> CA Tax Summary
+                    </button>
+                    <button class="tab-btn" data-tab="tab-trades">
+                        <i data-lucide="list"></i> Trade Ledger (<span id="trade-count">0</span>)
+                    </button>
+                    <button class="tab-btn" data-tab="tab-payouts">
+                        <i data-lucide="receipt"></i> Prop Payouts (<span id="payout-count">0</span>)
+                    </button>
+                    <button class="tab-btn" data-tab="tab-accounts">
+                        <i data-lucide="landmark"></i> Account Health & Reconciliation
+                    </button>
+                </div>
+
+                <div class="tab-actions">
+                    <div class="currency-selector-wrapper">
+                        <label for="currency-select">Display Currency:</label>
+                        <select id="currency-select" class="select-input">
+                            <option value="INR" selected>INR (₹) - Indian CA</option>
+                            <option value="USD">USD ($) - Global</option>
+                            <option value="EUR">EUR (€)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Overview / Tax Summary -->
+            <div class="tab-content active" id="tab-overview">
+                <div class="overview-grid">
+                    <div class="overview-card">
+                        <h3><i data-lucide="file-spreadsheet"></i> Categorized Income Schedule (Indian Tax Shape)</h3>
+                        <p class="section-desc">Normalized bucket classification ready for direct CA entry into ITR-3 / ITR-4 forms.</p>
+                        
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tax Category</th>
+                                        <th>Head of Income</th>
+                                        <th>Gross Volume / Value</th>
+                                        <th>Expenses / Charges</th>
+                                        <th>Net Taxable Base</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-tax-summary">
+                                    <tr>
+                                        <td colspan="6" class="text-center empty-state">No statements uploaded yet. Load samples or drag & drop statements above.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="overview-side">
+                        <div class="side-card">
+                            <h4><i data-lucide="shield-alert"></i> Reconciliation Health Checks</h4>
+                            <ul class="check-list" id="health-check-list">
+                                <li class="check-item neutral">
+                                    <i data-lucide="help-circle"></i>
+                                    <span>Upload statements to run automated reconciliation checks.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="side-card export-cta-card">
+                            <h4><i data-lucide="download"></i> Download CA Pack</h4>
+                            <p>Generates an Excel workbook containing Consolidated Ledger, Prop Payouts, Account Reconciliation, and CA Cover Note.</p>
+                            <button class="btn btn-primary btn-block" id="btn-export-main" disabled>
+                                <i data-lucide="file-down"></i> Export Excel (.xlsx) Pack
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Trade Ledger -->
+            <div class="tab-content" id="tab-trades">
+                <div class="table-toolbar">
+                    <div class="search-box">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="search-trades" placeholder="Search ticket, symbol, firm, type...">
+                    </div>
+                    <div class="filter-group">
+                        <select id="filter-account" class="select-input">
+                            <option value="ALL">All Accounts</option>
+                        </select>
+                        <select id="filter-category" class="select-input">
+                            <option value="ALL">All Tax Categories</option>
+                            <option value="Speculative">Speculative</option>
+                            <option value="F&O / Derivatives">F&O / Derivatives</option>
+                            <option value="Capital / Transfer">Capital / Transfer</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table" id="table-trades">
+                        <thead>
+                            <tr>
+                                <th>Ticket / ID</th>
+                                <th>Account & Source</th>
+                                <th>Open / Close Date</th>
+                                <th>Type & Symbol</th>
+                                <th>Lots / Vol</th>
+                                <th>Gross Profit</th>
+                                <th>Comm / Swap</th>
+                                <th>Net P&L</th>
+                                <th>Tax Bucket</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-trades">
+                            <tr>
+                                <td colspan="9" class="text-center empty-state">No trades ingested yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab Content: Prop Payouts -->
+            <div class="tab-content" id="tab-payouts">
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Payout Date</th>
+                                <th>Prop Firm</th>
+                                <th>Account Ref</th>
+                                <th>Payment Method</th>
+                                <th>Original Amount</th>
+                                <th>INR Value</th>
+                                <th>Tax Head</th>
+                                <th>Verification Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-payouts">
+                            <tr>
+                                <td colspan="8" class="text-center empty-state">No prop firm payouts recorded.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab Content: Account Health & Reconciliation -->
+            <div class="tab-content" id="tab-accounts">
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Account Number / Firm</th>
+                                <th>Broker / Source</th>
+                                <th>Platform</th>
+                                <th>Initial Deposit</th>
+                                <th>Total Closed P&L</th>
+                                <th>Total Withdrawals</th>
+                                <th>Ending Balance</th>
+                                <th>Reconciled</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-accounts">
+                            <tr>
+                                <td colspan="8" class="text-center empty-state">No accounts detected.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer Disclaimer (Legal Requirement) -->
+        <footer class="footer">
+            <div class="footer-disclaimer">
+                <i data-lucide="scale"></i>
+                <p>
+                    <strong>Legal & Regulatory Disclaimer:</strong> 
+                    CA Layer is a data compilation, normalization, and statement parsing tool for Chartered Accountants and tax professionals. 
+                    This software does not provide tax, legal, accounting, or investment advice. The output generated is a compiled reconciliation pack designed for professional review prior to official return filing.
+                </p>
+            </div>
+            <div class="footer-meta">
+                <span>CA Layer &copy; 2026</span>
+                <span>•</span>
+                <span>Deterministic Ingestion Engine</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/parsers/mt4-mt5-parser.js"></script>
+    <script src="js/parsers/prop-payout-parser.js"></script>
+    <script src="js/engine/reconciliation.js"></script>
+    <script src="js/export/ca-excel-generator.js"></script>
+    <script src="js/samples/sample-data.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
