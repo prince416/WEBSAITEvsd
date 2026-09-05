@@ -1297,3 +1297,16 @@ body {
     .landing-dark .source-item:nth-child(even) { transform: none; }
     .hero-cta-bar, .hero-waitlist-form { align-items: stretch; flex-direction: column; max-width: none; }
 }
+
+.pricing-grid { display:grid; gap:20px; grid-template-columns:repeat(2, minmax(0, 1fr)); max-width:820px; }
+.pricing-card { background:#0a1120; border:1px solid rgba(255,255,255,.15); box-shadow:0 20px 48px rgba(0,0,0,.3); display:flex; flex-direction:column; gap:12px; padding:28px; }
+.pricing-card.featured { border-color:#ff7777; box-shadow:0 0 34px rgba(201,42,42,.24), 0 20px 48px rgba(0,0,0,.3); transform:translateY(-10px); }
+.pricing-card > span, .pricing-card small { color:#a8b2c5; font-family:var(--font-mono); font-size:.78rem; }
+.pricing-card strong { color:#fff; font-family:var(--font-serif); font-size:3.2rem; line-height:1; }
+.pricing-card ul { color:#dce4f1; display:grid; gap:8px; list-style:none; margin:8px 0; padding:0; }
+.pricing-card li::before { color:#ff7777; content:'+'; margin-right:8px; }
+.auth-card { display:grid; gap:14px; text-align:left; }
+.auth-card #auth-form { display:grid; gap:10px; }
+.auth-actions { display:flex; flex-wrap:wrap; gap:10px; }
+.auth-actions button { background:none; border:0; color:var(--stamp-red); cursor:pointer; font:inherit; font-size:.82rem; padding:0; }
+@media (max-width:760px) { .pricing-grid { grid-template-columns:1fr; } .pricing-card.featured { transform:none; } }

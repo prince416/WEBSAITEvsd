@@ -45,10 +45,7 @@
                 </div>
 
                 <div class="header-actions">
-                    <a href="#workspace" class="btn btn-secondary-paper">
-                        <i data-lucide="play"></i>
-                        <span>LAUNCH WORKSPACE</span>
-                    </a>
+                    <button class="btn btn-secondary-paper" id="btn-auth" type="button">SIGN IN</button>
                     <a href="#waitlist" class="btn btn-stamp">
                         <i data-lucide="stamp"></i>
                         <span>GET EARLY ACCESS</span>
@@ -192,8 +189,16 @@
             </div>
         </section>
 
+        <section class="section landing-dark landing-depth-section pricing-section" id="pricing">
+            <div class="section-header"><span class="section-num">ACCESS PASSES</span><h2 class="section-title">Pay only when you need another report.</h2></div>
+            <div class="pricing-grid">
+                <article class="pricing-card"><span>WEEKLY PASS</span><strong>$4.99</strong><small>7 days</small><ul><li>Unlimited reports</li><li>One country per report</li><li>CSV + PDF exports</li><li>Ledger scoped to pass</li></ul><button class="btn btn-secondary-paper" type="button" data-plan="weekly">Choose weekly</button></article>
+                <article class="pricing-card featured"><span>MONTHLY PASS</span><strong>$9.99</strong><small>30 days</small><ul><li>Unlimited reports</li><li>Multi-country tagging</li><li>CSV + Excel + PDF</li><li>Persistent monthly ledger</li></ul><button class="btn btn-stamp" type="button" data-plan="monthly">Choose monthly</button></article>
+            </div>
+        </section>
+
         <!-- Live Interactive Reconciliation Workspace Panel -->
-        <section class="section workspace-section" id="workspace">
+        <section class="section workspace-section product-area hidden" id="workspace">
             <div class="section-header">
                 <span class="section-num">LIVE ENGINE DEMO / INTERACTIVE WORKSPACE</span>
                 <h2 class="section-title">Try The Statement Ingestion Engine Live</h2>
@@ -455,7 +460,7 @@
         </section>
 
         <!-- Country Tax Categorization Concept -->
-        <section class="section country-section landing-dark landing-depth-section" id="country-section">
+        <section class="section country-section product-area hidden" id="country-section">
             <div class="section-header">
                 <span class="section-num">04 / GLOBAL TAX LOGIC</span>
                 <h2 class="section-title">Tailored Tax Categorization for Your Jurisdiction</h2>
@@ -600,13 +605,26 @@
         </div>
     </div>
 
+    <div class="modal-overlay hidden" id="auth-modal">
+        <div class="modal-card auth-card">
+            <h3>Trade Ledger</h3><p>Sign in to create reports and manage passes.</p>
+            <button class="btn btn-secondary-paper btn-block" id="btn-google" type="button">Continue with Google</button>
+            <form id="auth-form" data-mode="signin"><input class="form-input" type="email" name="email" placeholder="Email" required><input class="form-input" type="password" name="password" placeholder="Password (8+ characters)" minlength="8" required><button class="btn btn-stamp btn-block" id="auth-submit" type="submit">Sign in</button></form>
+            <div class="auth-actions"><button type="button" data-auth-mode="signup">Create account</button><button type="button" data-auth-mode="signin">Sign in</button><button type="button" id="btn-reset">Forgot password?</button></div><p id="auth-status" class="form-status" aria-live="polite"></p>
+        </div>
+    </div>
+
     <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/parsers/unified-parsers.js"></script>
     <script src="js/engine/reconciliation.js"></script>
     <script src="js/export/exporter.js"></script>
     <script src="js/samples/sample-data.js"></script>
     <script src="app.js"></script>
     <script>
+        TradeLedgerAuth.init();
         lucide.createIcons();
     </script>
 </body>

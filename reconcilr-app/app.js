@@ -398,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCloseModal = document.getElementById('btn-close-modal');
 
     // Set this to the Formspree endpoint created for Trade Ledger before launch.
-    const LEAD_ENDPOINT = 'https://formspree.io/f/REPLACE_WITH_FORM_ID';
+    const LEAD_ENDPOINT = window.TradeLedgerConfig?.formspreeEndpoint || '';
 
     async function handleFormSubmit(e) {
         e.preventDefault();
@@ -406,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const status = form.parentElement.querySelector('.form-status') || form.querySelector('.form-status');
         const submitButton = form.querySelector('button[type="submit"]');
 
-        if (LEAD_ENDPOINT.includes('REPLACE_WITH_FORM_ID')) {
+        if (!LEAD_ENDPOINT) {
             if (status) {
                 status.textContent = 'Lead capture is not configured yet. Add the Formspree form ID before accepting signups.';
                 status.dataset.state = 'error';
